@@ -21,6 +21,7 @@ type Commands = (number | number[])[]
 let commandsString = ''
 let commands: Commands = []
 let receivingCommand = false;
+let forceStop = false;
 
 input.onButtonPressed(Button.A, function() {
     messageHandler('<')
@@ -53,6 +54,7 @@ function messageHandler(receivedString: string) {
     } else if (receivingCommand) {
         commandsString += data[0]
     } else if (data[0] == '>>') {
+        forceStop = false
         try {
             if (commandsString) {
                 commands = JSON.parse(commandsString)
@@ -63,9 +65,10 @@ function messageHandler(receivedString: string) {
         } catch (err) {
             bluetooth.uartWriteString(err.message)
         }
+    } else if (data[0] == '!') {
+        forceStop = true;
+        f1 = function () {}
     }
-
-
 }
 
 function run(commands: Commands){
@@ -77,10 +80,20 @@ function run(commands: Commands){
         } else {
             runCommand([command as number])
         }
+
+        if (forceStop){
+            break;
+        }
     }
 
     bluetooth.uartWriteString("2" + '\n')
 }
+
+let f1 = function() {}
+
+basic.forever(function() {
+    f1()
+})
 
 pfTransmitter.connectIrSenderLed(AnalogPin.P0)
 
@@ -115,7 +128,29 @@ const pfSingleOutput: { [key: number]: PfSingleOutput } = {
     15: PfSingleOutput.BrakeThenFloat
 }
 
-function runCommand(command: number[]){
+function sensorDataByNr(n: number){
+    if (n == 1){
+        return input.temperature()
+    } else if (n == 2) {
+        return input.lightLevel()
+    }
+
+    return null
+}
+
+function compare(n: number, a: number, b: number){
+    if (n == 1) {
+        return a > b
+    } else if (n == 2) {
+        return a < b
+    } else if (n == 3) {
+        return a == b
+    }
+
+    return null
+}
+
+function runCommand(command: Commands){
     let commandNr = command[0];
 
     switch (commandNr) {
@@ -123,16 +158,32 @@ function runCommand(command: number[]){
             basic.clearScreen()
             break;
         case 1:
-            basic.pause(Math.floor(command[1]*1000))
+            basic.pause(Math.floor(command[1] as number *1000))
             break;
         case 2:
-            led.plot(command[1], command[2])
+            led.plot(command[1] as number, command[2] as number)
             break;
         case 3:
-            led.unplot(command[1], command[2])
+            led.unplot(command[1] as number, command[2] as number)
             break;
         case 4:
-            pfTransmitter.singleOutputMode(pfChannels[command[1]], pfOutputs[command[2]], pfSingleOutput[command[3]])
+            pfTransmitter.singleOutputMode(pfChannels[command[1] as number], pfOutputs[command[2] as number], pfSingleOutput[command[3] as number])
+            break;
+        case 5:
+            f1 = function() {
+                let data = [input.runningTime(), sensorDataByNr(command[1] as number)];
+
+                bluetooth.uartWriteString(data.join(',') + '\n')
+
+                basic.pause(command[2] as number)
+            }
+            break;
+        case 6:
+            let test = compare(command[2] as number, sensorDataByNr(command[1] as number), command[3] as number)
+
+            if (test){
+                run(command[4] as number[])
+            }
             break;
         default:
             break;
