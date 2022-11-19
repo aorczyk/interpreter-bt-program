@@ -22,12 +22,7 @@ let commandsString = ''
 let commands: Commands = []
 let receivingCommand = false;
 let forceStop = false;
-
-input.onButtonPressed(Button.A, function() {
-    messageHandler('<')
-    messageHandler('[0,[2,1,1],[1,1000],[3,1,1]]')
-    messageHandler('>')
-})
+let allStoped: number[] = []
 
 function messageHandler(receivedString: string) {
     // basic.pause(1000)
@@ -45,6 +40,7 @@ function messageHandler(receivedString: string) {
         return
     } else if (data[0] == '>'){
         receivingCommand = false
+        allStoped.push(1)
         // led.unplot(4, 0)
         basic.showIcon(IconNames.Yes)
         // basic.pause(500)
@@ -67,7 +63,14 @@ function messageHandler(receivedString: string) {
         }
     } else if (data[0] == '!') {
         forceStop = true;
-        f1 = function () {}
+        bluetooth.uartWriteString("2" + '\n')
+    }
+}
+
+function confirmStop() {
+    allStoped.shift()
+    if (allStoped.length == 0){
+        bluetooth.uartWriteString("2" + '\n')
     }
 }
 
@@ -82,18 +85,11 @@ function run(commands: Commands){
         }
 
         if (forceStop){
+            confirmStop()
             break;
         }
     }
-
-    bluetooth.uartWriteString("2" + '\n')
 }
-
-let f1 = function() {}
-
-basic.forever(function() {
-    f1()
-})
 
 pfTransmitter.connectIrSenderLed(AnalogPin.P0)
 
@@ -128,16 +124,6 @@ const pfSingleOutput: { [key: number]: PfSingleOutput } = {
     15: PfSingleOutput.BrakeThenFloat
 }
 
-function sensorDataByNr(n: number){
-    if (n == 1){
-        return input.temperature()
-    } else if (n == 2) {
-        return input.lightLevel()
-    }
-
-    return null
-}
-
 function compare(n: number, a: number, b: number){
     if (n == 1) {
         return a > b
@@ -147,45 +133,62 @@ function compare(n: number, a: number, b: number){
         return a == b
     }
 
-    return null
+    return false
 }
+
+// let lightLevel = 0;
 
 function runCommand(command: Commands){
     let commandNr = command[0];
 
-    switch (commandNr) {
-        case 0:
-            basic.clearScreen()
-            break;
-        case 1:
-            basic.pause(Math.floor(command[1] as number *1000))
-            break;
-        case 2:
-            led.plot(command[1] as number, command[2] as number)
-            break;
-        case 3:
-            led.unplot(command[1] as number, command[2] as number)
-            break;
-        case 4:
-            pfTransmitter.singleOutputMode(pfChannels[command[1] as number], pfOutputs[command[2] as number], pfSingleOutput[command[3] as number])
-            break;
-        case 5:
-            f1 = function() {
-                let data = [input.runningTime(), sensorDataByNr(command[1] as number)];
+    if (commandNr == 0) {
+        basic.clearScreen()
+    } else if (commandNr == 1){
+        basic.pause(Math.floor(command[1] as number * 1000))
+    } else if (commandNr == 2) {
+        led.plot(command[1] as number, command[2] as number)
+    } else if (commandNr == 3) {
+        led.unplot(command[1] as number, command[2] as number)
+    } else if (commandNr == 4) {
+        pfTransmitter.singleOutputMode(pfChannels[command[1] as number], pfOutputs[command[2] as number], pfSingleOutput[command[3] as number])
+    } 
+    // else if (commandNr == 5) {
+    //     control.runInBackground(() => {
+    //         while (true) {
+    //             let data = [input.runningTime(), input.compassHeading()];
 
-                bluetooth.uartWriteString(data.join(',') + '\n')
+    //             bluetooth.uartWriteString(data.join(',') + '\n')
 
-                basic.pause(command[2] as number)
+    //             basic.pause(command[2] as number || 20)
+    //         }
+    //     })
+    // }
+    else if (commandNr == 6) {
+        // let out = input.lightLevel();
+        control.runInBackground(() => {
+            allStoped.push(1)
+            let isTrue = false;
+            
+            while (!forceStop) {
+                let test = compare(command[1] as number, input.lightLevel(), command[2] as number)
+
+                if (test){
+                    if (!isTrue){
+                        isTrue = true
+                        run(command[3] as Commands)
+                    }
+                } else {
+                    isTrue = false
+                }
+
+                basic.pause(20)
             }
-            break;
-        case 6:
-            let test = compare(command[2] as number, sensorDataByNr(command[1] as number), command[3] as number)
 
-            if (test){
-                run(command[4] as number[])
-            }
-            break;
-        default:
-            break;
+            confirmStop()
+        })
     }
 }
+
+// basic.forever(() =>{
+//     lightLevel = input.lightLevel();
+// })
