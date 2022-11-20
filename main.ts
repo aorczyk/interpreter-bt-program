@@ -192,7 +192,7 @@ function runCommand(command: Commands){
                 let light = input.lightLevel();
                 let sound = input.soundLevel();
 
-                if (t != 3) {
+                if (t < 3) {
                     condition = compare(command[2] as number, t == 1 ? light : sound, command[3] as number)
                 }
 
