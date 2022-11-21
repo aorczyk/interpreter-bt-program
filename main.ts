@@ -34,8 +34,7 @@ function messageHandler(receivedString: string) {
         return
     } else if (data[0] == '>'){
         receivingCommand = false
-        // basic.showIcon(IconNames.Happy)
-        bluetooth.uartWriteString("1" + '\n')
+        bluetooth.uartWriteString('1\n')
         return
     } else if (receivingCommand) {
         commandsString += data[0]
@@ -49,6 +48,7 @@ function messageHandler(receivedString: string) {
 
     } else if (data[0] == '!') {
         forceStop = true;
+        bluetooth.uartWriteString('2\n')
     }
 }
 
@@ -62,7 +62,6 @@ function run(commands: Commands){
         }
 
         if (forceStop){
-            // confirmStop()
             break;
         }
     }
@@ -70,43 +69,12 @@ function run(commands: Commands){
 
 pfTransmitter.connectIrSenderLed(AnalogPin.P0)
 
-// const pfChannels: {[key: number]: PfChannel} = {
-//     1: PfChannel.Channel1,
-//     2: PfChannel.Channel2,
-//     3: PfChannel.Channel3,
-//     4: PfChannel.Channel4
-// }
-
-// const pfOutputs: { [key: number]: PfOutput } = {
-//     1: PfOutput.Red,
-//     2: PfOutput.Blue,
-// }
-
-// const pfSingleOutput: { [key: number]: PfSingleOutput } = {
-//     0: PfSingleOutput.Float,
-//     1: PfSingleOutput.Forward1,
-//     2: PfSingleOutput.Forward2,
-//     3: PfSingleOutput.Forward3,
-//     4: PfSingleOutput.Forward4,
-//     5: PfSingleOutput.Forward5,
-//     6: PfSingleOutput.Forward6,
-//     7: PfSingleOutput.Forward7,
-//     8: PfSingleOutput.Backward1,
-//     9: PfSingleOutput.Backward2,
-//     10: PfSingleOutput.Backward3,
-//     11: PfSingleOutput.Backward4,
-//     12: PfSingleOutput.Backward5,
-//     13: PfSingleOutput.Backward6,
-//     14: PfSingleOutput.Backward7,
-//     15: PfSingleOutput.BrakeThenFloat
-// }
-
-function compare(n: number, a: number, b: number){
-    if (n == 1) {
+function compare(a: number, t: number, b: number){
+    if (t == 1) {
         return a > b
-    } else if (n == 2) {
+    } else if (t == 2) {
         return a < b
-    } else if (n == 3) {
+    } else if (t == 3) {
         return a == b
     }
 
@@ -183,49 +151,91 @@ function runCommand(command: Commands){
         
         pfTransmitter.singleOutputMode(channel, output, pfCommand)
     } 
-    else if (commandNr == 5) {
-        let t = command[1];
+    // else if (commandNr == 5) {
+    //     let t = command[1];
 
-        let f = () => {
-            let condition = true;
-            while (!forceStop && condition) {
-                let light = input.lightLevel();
-                let sound = input.soundLevel();
+    //     let f = () => {
+    //         let condition = true;
+    //         while (!forceStop && condition) {
+    //             if (t < 3) {
+    //                 condition = compare(command[2] as number, t == 1 ? input.lightLevel() : input.soundLevel(), command[3] as number)
+    //             }
 
-                if (t < 3) {
-                    condition = compare(command[2] as number, t == 1 ? light : sound, command[3] as number)
-                }
+    //             run(command[4] as Commands)
 
+    //             basic.pause(20)
+    //         }
+    //     }
+
+    //     t == 4 ? control.runInBackground(f) : f()
+    // }
+    // else if (commandNr == 6) {
+    //     control.runInBackground(() => {
+    //         let isTrue = false;
+
+    //         while (!forceStop) {
+    //             if (compare(command[2] as number, command[1] == 1 ? input.lightLevel() : input.soundLevel(), command[3] as number)){
+    //                 if (!isTrue){
+    //                     isTrue = true
+    //                     run(command[4] as Commands)
+    //                 }
+    //             } else {
+    //                 isTrue = false
+    //             }
+
+    //             basic.pause(20)
+    //         }
+    //     })
+    // }
+
+
+    // Repeat Block
+    // Use this block to repeat actions.
+    // Blocks placed inside the Repeat Block will be
+    // looped.This can also be called the "loop
+    // block." The loop can be repeated forever,
+    // for a certain amount of time, or until
+    // something happens.
+
+    // Wait For
+    // Use this block to tell the program to wait for
+    // something to happen.It can wait for a set
+    // amount of time or for input from a sensor.
+    // This block always requires input in order to
+    // work properly.
+
+    else if (commandNr == 5 || commandNr == 6) {
+        let p1 = command[1] as number;
+        let p2 = command[2] as number;
+        let p3 = command[3] as number;
+        let st = input.runningTime();
+        
+        let condition = true;
+
+        while (!forceStop && condition) {
+            if (p1) {
+                condition = compare(
+                    p1 == 1 ? (input.runningTime() - st) / 1000 : p1 == 2 ? input.lightLevel() : input.soundLevel(),
+                    p2, 
+                    p3
+                )
+            }
+
+            if (command[4]){
                 run(command[4] as Commands)
             }
+
+            basic.pause(20)
         }
-
-        t == 4 ? control.runInBackground(f) : f()
     }
-    else if (commandNr == 6) {
-        // let out = input.lightLevel();
-        control.runInBackground(() => {
-            let isTrue = false;
-            
-            while (!forceStop) {
-                let light = input.lightLevel();
-                let sound = input.soundLevel();
 
-                let test = compare(command[2] as number, command[1] == 1 ? light : sound, command[3] as number)
 
-                if (test){
-                    if (!isTrue){
-                        isTrue = true
-                        run(command[4] as Commands)
-                    }
-                } else {
-                    isTrue = false
-                }
-
-                basic.pause(20)
-            }
-
-            // confirmStop()
-        })
-    }
 }
+
+
+// input.onButtonPressed(Button.A, function() {
+//     // commands = [0, [2, 0, 0], [5, 1, 1, 10, [[2, 0, 0], [1, 1], [3, 0, 0], [1, 1]]], [2, 1, 1]] as Commands;
+//     // commands = [0, [5, 2, 2, 100, [[2, 0, 0], [1, 1], [3, 0, 0], [1, 1]]], [2, 1, 1]] as Commands;
+//     commands = [0, [6, 2, 2, 50], [2, 1, 1]] as Commands;
+//     run(commands)
+// })
