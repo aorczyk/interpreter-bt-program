@@ -54,15 +54,14 @@ function messageHandler(receivedString: string) {
 
 function run(commands: Commands){
     for (let command of commands){
+        if (forceStop) {
+            break;
+        }
 
         if (Array.isArray(command)){
             runCommand(command as number[])
         } else {
             runCommand([command as number])
-        }
-
-        if (forceStop){
-            break;
         }
     }
 }
@@ -86,9 +85,11 @@ function runCommand(command: Commands){
 
     if (commandNr == 0) {
         basic.clearScreen()
-    } else if (commandNr == 1){
-        basic.pause(Math.floor(command[1] as number * 1000))
-    } else if (commandNr == 2) {
+    } 
+    // else if (commandNr == 1){
+    //     basic.pause(Math.floor(command[1] as number * 1000))
+    // } 
+    else if (commandNr == 2) {
         led.plot(command[1] as number, command[2] as number)
     } else if (commandNr == 3) {
         led.unplot(command[1] as number, command[2] as number)
@@ -169,24 +170,28 @@ function runCommand(command: Commands){
 
     //     t == 4 ? control.runInBackground(f) : f()
     // }
-    // else if (commandNr == 6) {
-    //     control.runInBackground(() => {
-    //         let isTrue = false;
+    else if (commandNr == 8) {
+        control.runInBackground(() => {
+            let isTrue = false;
 
-    //         while (!forceStop) {
-    //             if (compare(command[2] as number, command[1] == 1 ? input.lightLevel() : input.soundLevel(), command[3] as number)){
-    //                 if (!isTrue){
-    //                     isTrue = true
-    //                     run(command[4] as Commands)
-    //                 }
-    //             } else {
-    //                 isTrue = false
-    //             }
+            while (!forceStop) {
+                if (compare(
+                    command[1] == 1 ? input.lightLevel() : input.soundLevel(), 
+                    command[2] as number, 
+                    command[3] as number
+                )){
+                    if (!isTrue){
+                        isTrue = true
+                        run(command[4] as Commands)
+                    }
+                } else {
+                    isTrue = false
+                }
 
-    //             basic.pause(20)
-    //         }
-    //     })
-    // }
+                basic.pause(20)
+            }
+        })
+    }
 
 
     // Repeat Block
@@ -228,10 +233,12 @@ function runCommand(command: Commands){
             basic.pause(20)
         }
     }
-
-
+    else if (commandNr == 7) {
+        control.runInBackground(() => {
+            run(command[1] as Commands)
+        })
+    }
 }
-
 
 // input.onButtonPressed(Button.A, function() {
 //     // commands = [0, [2, 0, 0], [5, 1, 1, 10, [[2, 0, 0], [1, 1], [3, 0, 0], [1, 1]]], [2, 1, 1]] as Commands;
