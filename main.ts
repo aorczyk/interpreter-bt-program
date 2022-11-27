@@ -26,6 +26,7 @@ let commands: Commands = []
 let receivingCommand = false;
 let forceStop = false;
 let variables: number[] = []
+let runningNr = 0;
 
 function messageHandler(receivedString: string) {
     let data = receivedString.split(';')
@@ -57,12 +58,18 @@ function messageHandler(receivedString: string) {
 }
 
 function run(commands: Commands){
+    runningNr += 1
     for (let cmd of commands){
         runCommand(Array.isArray(cmd) ? cmd as number[] : [cmd as number])()
 
         if (forceStop) {
             break;
         }
+    }
+
+    runningNr -= 1
+    if (runningNr == 0){
+        btSend('E' + runningNr)
     }
 }
 
@@ -200,7 +207,6 @@ function runCommand(cmd: Commands){
             while (!forceStop && condition) {
                 if (p1) {
                     condition = compare(
-                        // p1 == 1 ? (input.runningTime() - st) / 1000 : p1 == 2 ? input.lightLevel() : input.soundLevel(),
                         p1 == 1 ? (input.runningTime() - st) / 1000 : getData(p1 - 1),
                         p2, 
                         p3
