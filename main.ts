@@ -211,6 +211,10 @@ function runCommand(cmd: Commands){
                         p2, 
                         p3
                     )
+
+                    if (!condition){
+                        break;
+                    }
                 }
 
                 if (cmd[4]){
