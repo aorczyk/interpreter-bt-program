@@ -69,7 +69,7 @@ function run(commands: Commands){
 
     runningNr -= 1
     if (runningNr == 0){
-        btSend('E' + runningNr)
+        btSend('0')
     }
 }
 
@@ -113,6 +113,9 @@ function getData(id: number){
 
     return 0
 }
+
+// HACK - handle only one if function
+let isTrue = false;
 
 function runCommand(cmd: Commands){
     let id = cmd[0];
@@ -202,17 +205,13 @@ function runCommand(cmd: Commands){
             let p3 = cmd[3] as number;
             let st = input.runningTime();
             
-            let condition = true;
-
-            while (!forceStop && condition) {
+            while (!forceStop) {
                 if (p1) {
-                    condition = compare(
-                        p1 == 1 ? (input.runningTime() - st) / 1000 : getData(p1 - 1),
+                    if (!compare(
+                        p1 == -1 ? (input.runningTime() - st) / 1000 : getData(p1),
                         p2, 
                         p3
-                    )
-
-                    if (!condition){
+                    )){
                         break;
                     }
                 }
@@ -234,7 +233,7 @@ function runCommand(cmd: Commands){
     }
     else if (id == 8) {
         // control.runInBackground(() => {
-        let isTrue = false;
+        
         return () => {
 
             // while (!forceStop) {
