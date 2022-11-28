@@ -33,7 +33,6 @@ function messageHandler(receivedString: string) {
 
     if (data[0] == '0') {
         forceStop = true;
-        btSend('0\n')
     } else if (data[0] == '<'){
         receivingCommand = true
         basic.clearScreen()
@@ -43,7 +42,7 @@ function messageHandler(receivedString: string) {
     } else if (data[0] == '>'){
         receivingCommand = false
         led.plot(2, 0)
-        btSend('1\n')
+        btSend('1')
         return
     } else if (receivingCommand) {
         commandsString += data[0]
@@ -60,7 +59,7 @@ function messageHandler(receivedString: string) {
 function run(commands: Commands){
     runningNr += 1
     for (let cmd of commands){
-        runCommand(Array.isArray(cmd) ? cmd as number[] : [cmd as number])()
+        runCommand(Array.isArray(cmd) ? cmd as number[] : [cmd as number])
 
         if (forceStop) {
             break;
@@ -69,7 +68,7 @@ function run(commands: Commands){
 
     runningNr -= 1
     if (runningNr == 0){
-        btSend('0')
+        btSend('E' + runningNr)
     }
 }
 
@@ -114,74 +113,62 @@ function getData(id: number){
     return 0
 }
 
-// HACK - handle only one if function
-let isTrue = false;
 
 function runCommand(cmd: Commands){
     let id = cmd[0];
 
     if (id == 0) {
-        return () => {
-            basic.clearScreen()
-        }
+        basic.clearScreen()
     } 
     else if (id == 1){
-        return () => {
-            let data = [input.runningTime()]
-            for (let i = 1; i < cmd.length; i++){
-                data.push(getData(cmd[i] as number))
-            }
-            btSend(data.join(',') + '\n')
+        let data = [input.runningTime()]
+        for (let i = 1; i < cmd.length; i++){
+            data.push(getData(cmd[i] as number))
         }
+        btSend(data.join(','))
     }
     else if (id == 2) {
-        return () => {
-            led.plot(cmd[1] as number, cmd[2] as number)
-        }
+        led.plot(cmd[1] as number, cmd[2] as number)
     } else if (id == 3) {
-        return () => {
-            led.unplot(cmd[1] as number, cmd[2] as number)
-        }
+        led.unplot(cmd[1] as number, cmd[2] as number)
     } else if (id == 4) {
-        return () => {
-            let pfCommand: PfSingleOutput;
+        let pfCommand: PfSingleOutput;
 
-            if (cmd[3] == 0) {
-                pfCommand = PfSingleOutput.Float
-            } else if (cmd[3] == 1) {
-                pfCommand = PfSingleOutput.Forward1
-            } else if (cmd[3] == 2) {
-                pfCommand = PfSingleOutput.Forward2
-            } else if (cmd[3] == 3) {
-                pfCommand = PfSingleOutput.Forward3
-            } else if (cmd[3] == 4) {
-                pfCommand = PfSingleOutput.Forward4
-            } else if (cmd[3] == 5) {
-                pfCommand = PfSingleOutput.Forward5
-            } else if (cmd[3] == 6) {
-                pfCommand = PfSingleOutput.Forward6
-            } else if (cmd[3] == 7) {
-                pfCommand = PfSingleOutput.Forward7
-            } else if (cmd[3] == 8) {
-                pfCommand = PfSingleOutput.Backward1
-            } else if (cmd[3] == 9) {
-                pfCommand = PfSingleOutput.Backward2
-            } else if (cmd[3] == 10) {
-                pfCommand = PfSingleOutput.Backward3
-            } else if (cmd[3] == 11) {
-                pfCommand = PfSingleOutput.Backward4
-            } else if (cmd[3] == 12) {
-                pfCommand = PfSingleOutput.Backward5
-            } else if (cmd[3] == 13) {
-                pfCommand = PfSingleOutput.Backward6
-            } else if (cmd[3] == 14) {
-                pfCommand = PfSingleOutput.Backward7
-            } else if (cmd[3] == 15) {
-                pfCommand = PfSingleOutput.BrakeThenFloat
-            }
-            
-            pfTransmitter.singleOutputMode(cmd[1] as PfChannel, cmd[2] as PfOutput, pfCommand)
+        if (cmd[3] == 0) {
+            pfCommand = PfSingleOutput.Float
+        } else if (cmd[3] == 1) {
+            pfCommand = PfSingleOutput.Forward1
+        } else if (cmd[3] == 2) {
+            pfCommand = PfSingleOutput.Forward2
+        } else if (cmd[3] == 3) {
+            pfCommand = PfSingleOutput.Forward3
+        } else if (cmd[3] == 4) {
+            pfCommand = PfSingleOutput.Forward4
+        } else if (cmd[3] == 5) {
+            pfCommand = PfSingleOutput.Forward5
+        } else if (cmd[3] == 6) {
+            pfCommand = PfSingleOutput.Forward6
+        } else if (cmd[3] == 7) {
+            pfCommand = PfSingleOutput.Forward7
+        } else if (cmd[3] == 8) {
+            pfCommand = PfSingleOutput.Backward1
+        } else if (cmd[3] == 9) {
+            pfCommand = PfSingleOutput.Backward2
+        } else if (cmd[3] == 10) {
+            pfCommand = PfSingleOutput.Backward3
+        } else if (cmd[3] == 11) {
+            pfCommand = PfSingleOutput.Backward4
+        } else if (cmd[3] == 12) {
+            pfCommand = PfSingleOutput.Backward5
+        } else if (cmd[3] == 13) {
+            pfCommand = PfSingleOutput.Backward6
+        } else if (cmd[3] == 14) {
+            pfCommand = PfSingleOutput.Backward7
+        } else if (cmd[3] == 15) {
+            pfCommand = PfSingleOutput.BrakeThenFloat
         }
+        
+        pfTransmitter.singleOutputMode(cmd[1] as PfChannel, cmd[2] as PfOutput, pfCommand)
     }
     // Repeat Block
     // Use this block to repeat actions.
@@ -199,76 +186,63 @@ function runCommand(cmd: Commands){
     // work properly.
 
     else if (id == 5 || id == 6) {
-        return () => {
-            let p1 = cmd[1] as number;
-            let p2 = cmd[2] as number;
-            let p3 = cmd[3] as number;
-            let st = input.runningTime();
-            
-            while (!forceStop) {
-                if (p1) {
-                    if (!compare(
-                        p1 == -1 ? (input.runningTime() - st) / 1000 : getData(p1),
-                        p2, 
-                        p3
-                    )){
-                        break;
-                    }
+        let p1 = cmd[1] as number;
+        let p2 = cmd[2] as number;
+        let p3 = cmd[3] as number;
+        let st = input.runningTime();
+        
+        while (!forceStop) {
+            if (p1) {
+                if (!compare(
+                    p1 == -1 ? (input.runningTime() - st) / 1000 : getData(p1),
+                    p2, 
+                    p3
+                )){
+                    break;
                 }
-
-                if (cmd[4]){
-                    run(cmd[4] as Commands)
-                }
-
-                basic.pause(20)
             }
+
+            if (cmd[4]){
+                run(cmd[4] as Commands)
+            }
+
+            basic.pause(20)
         }
     }
     else if (id == 7) {
-        return () => {
-            control.runInBackground(() => {
-                run(cmd[1] as Commands)
-            })
-        }
+        control.runInBackground(() => {
+            run(cmd[1] as Commands)
+        })
     }
     else if (id == 8) {
-        // control.runInBackground(() => {
-        
-        return () => {
+        let slot = cmd[2] as number
+        if (variables[slot] == undefined){
+            variables[slot] = 0
+        }
 
-            // while (!forceStop) {
-                if (compare(
-                    getData(cmd[1] as number),
-                    cmd[2] as number,
-                    cmd[3] as number
-                )) {
-                    if (!isTrue) {
-                        isTrue = true
-                        run(cmd[4] as Commands)
-                    }
-                } else {
-                    isTrue = false
-                }
-
-                basic.pause(20)
-            // }
-        // })
+        if (compare(
+            getData(cmd[3] as number),
+            cmd[4] as number,
+            cmd[5] as number
+        )) {
+            if (cmd[1] || !variables[slot]) {
+                variables[slot] = 1
+                run(cmd[6] as Commands)
+            }
+        } else {
+            variables[cmd[2] as number] = 0
         }
     }
     else if (id == 9) {
-        return () => {
-            let a = cmd[3] as number;
-            if (cmd[2] == 1) {
-                variables[cmd[1] as number] = a
-            } else if (cmd[2] == 2) {
-                variables[cmd[1] as number] += a
-            } else if (cmd[2] == 3) {
-                variables[cmd[1] as number] -= a
-            }
+        let a = cmd[3] as number;
+        if (cmd[2] == 1) {
+            variables[cmd[1] as number] = a
+        } else if (cmd[2] == 2) {
+            variables[cmd[1] as number] += a
+        } else if (cmd[2] == 3) {
+            variables[cmd[1] as number] -= a
         }
     }
-
-    return () => {}
 }
 
 // input.onButtonPressed(Button.A, function() {
