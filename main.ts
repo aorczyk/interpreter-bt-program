@@ -27,9 +27,14 @@ let receivingCommand = false;
 let forceStop = false;
 let variables: number[] = []
 let runningNr = 0;
+let keyCode: number = null;
+let lastKeyCode: number = null;
 
 function messageHandler(receivedString: string) {
     let data = receivedString.split(';')
+    lastKeyCode = keyCode
+    keyCode = +data.join('')
+
 
     if (data[0] == '0') {
         forceStop = true;
@@ -75,7 +80,7 @@ function run(commands: Commands){
 pfTransmitter.connectIrSenderLed(AnalogPin.P0)
 
 function compare(a: number, t: number, b: number){
-    return (t == 1) ? a > b : (t == 2) ? a < b : (t == 3) ? a == b : false
+    return (t == 1) ? a > b : (t == 2) ? a < b : (t == 3) ? a === b : (t == 4) ? a !== b : false
 }
 
 function getData(id: number){
@@ -108,6 +113,18 @@ function getData(id: number){
     }
     else if (id == 10) {
         return variables[2]
+    }
+    else if (id == 11) {
+        return pins.digitalReadPin(DigitalPin.P1);
+    }
+    else if (id == 12) {
+        return sonar.ping(DigitalPin.P1, DigitalPin.P2, PingUnit.Centimeters)
+    }
+    else if (id == 13) {
+        return keyCode
+    }
+    else if (id == 14) {
+        return lastKeyCode
     }
 
     return 0
@@ -166,6 +183,10 @@ function runCommand(cmd: Commands){
             pfCommand = PfSingleOutput.Backward7
         } else if (cmd[3] == 15) {
             pfCommand = PfSingleOutput.BrakeThenFloat
+        } else if (cmd[3] == 16) {
+            pfCommand = PfSingleOutput.IncrementPWM
+        } else if (cmd[3] == 17) {
+            pfCommand = PfSingleOutput.DecrementPWM
         }
         
         pfTransmitter.singleOutputMode(cmd[1] as PfChannel, cmd[2] as PfOutput, pfCommand)
@@ -243,6 +264,10 @@ function runCommand(cmd: Commands){
             variables[cmd[1] as number] -= a
         }
     }
+    else if (id == 10) {
+        pins.setPull(DigitalPin.P1, PinPullMode.PullUp)
+    }
+
 }
 
 // input.onButtonPressed(Button.A, function() {
