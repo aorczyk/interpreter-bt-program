@@ -25,8 +25,8 @@ let commandsString = ''
 let commands: Commands = []
 let receivingCommand = false;
 let forceStop = false;
-let variables: number[] = []
-let runningNr = 0;
+let variables: number[] = [0,0,0]
+let threadsNr = 0;
 let keyCode: number = null;
 let lastKeyCode: number = null;
 
@@ -62,7 +62,7 @@ function messageHandler(receivedString: string) {
 }
 
 function run(commands: Commands){
-    runningNr += 1
+    threadsNr += 1
     for (let cmd of commands){
         runCommand(Array.isArray(cmd) ? cmd as number[] : [cmd as number])
 
@@ -71,9 +71,9 @@ function run(commands: Commands){
         }
     }
 
-    runningNr -= 1
-    if (runningNr == 0){
-        btSend('E' + runningNr)
+    threadsNr -= 1
+    if (threadsNr == 0){
+        btSend('E' + threadsNr)
     }
 }
 
@@ -236,22 +236,17 @@ function runCommand(cmd: Commands){
         })
     }
     else if (id == 8) {
-        let slot = cmd[2] as number
-        if (variables[slot] == undefined){
-            variables[slot] = 0
-        }
-
         if (compare(
             getData(cmd[3] as number),
             cmd[4] as number,
             cmd[5] as number
         )) {
-            if (cmd[1] || !variables[slot]) {
-                variables[slot] = 1
+            if (cmd[1] || !cmd[2]) {
+                cmd[2] = 1
                 run(cmd[6] as Commands)
             }
         } else {
-            variables[cmd[2] as number] = 0
+            cmd[2] = 0
         }
     }
     else if (id == 9) {
@@ -273,6 +268,6 @@ function runCommand(cmd: Commands){
 // input.onButtonPressed(Button.A, function() {
 //     // commands = [0, [2, 0, 0], [5, 1, 1, 10, [[2, 0, 0], [1, 1], [3, 0, 0], [1, 1]]], [2, 1, 1]] as Commands;
 //     // commands = [0, [5, 2, 2, 100, [[2, 0, 0], [1, 1], [3, 0, 0], [1, 1]]], [2, 1, 1]] as Commands;
-//     commands = [0, [6, 2, 2, 50], [2, 1, 1]] as Commands;
+//     // commands = [0, [6, 2, 2, 50], [2, 1, 1]] as Commands;
 //     run(commands)
 // })
