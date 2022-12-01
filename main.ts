@@ -269,7 +269,6 @@ function runCommand(cmd: Commands){
         forceStop = true
     }
     else if (id == 13) {
-        btSend('E0')
         control.reset()
     }
 }
