@@ -237,16 +237,16 @@ function runCommand(cmd: Commands){
     }
     else if (id == 8) {
         if (compare(
-            getData(cmd[3] as number),
-            cmd[4] as number,
-            cmd[5] as number
+            getData(cmd[1] as number),
+            cmd[2] as number,
+            cmd[3] as number
         )) {
-            if (cmd[1] || !cmd[2]) {
-                cmd[2] = 1
+            if (cmd[4] || !cmd[5]) {
+                cmd[5] = 1
                 run(cmd[6] as Commands)
             }
         } else {
-            cmd[2] = 0
+            cmd[5] = 0
         }
     }
     else if (id == 9) {
@@ -262,7 +262,9 @@ function runCommand(cmd: Commands){
     else if (id == 10) {
         pins.setPull(DigitalPin.P1, PinPullMode.PullUp)
     }
-
+    else if (id == 11) {
+        btSend(cmd[1] + ';')
+    }
 }
 
 // input.onButtonPressed(Button.A, function() {
