@@ -215,7 +215,7 @@ function runCommand(cmd: Commands){
         while (!forceStop) {
             if (p1) {
                 if (!compare(
-                    p1 == -1 ? (input.runningTime() - st) / 1000 : getData(p1),
+                    p1 == -1 ? (input.runningTime() - st) / 100 : getData(p1),
                     p2, 
                     p3
                 )){
