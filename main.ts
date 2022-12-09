@@ -271,6 +271,18 @@ function runCommand(cmd: Commands){
     else if (id == 13) {
         control.reset()
     }
+    else if (id == 14) {
+        let p1 = cmd[1] as number;
+        control.runInBackground(() => {
+            while (!forceStop) {
+                if (keyCode == p1) {
+                    run(cmd[2] as Commands)
+                }
+
+                basic.pause(20)
+            }
+        })
+    }
 }
 
 // input.onButtonPressed(Button.A, function() {
