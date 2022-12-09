@@ -273,10 +273,16 @@ function runCommand(cmd: Commands){
     }
     else if (id == 14) {
         let p1 = cmd[1] as number;
+        let trigger = true;
         control.runInBackground(() => {
             while (!forceStop) {
                 if (keyCode == p1) {
-                    run(cmd[2] as Commands)
+                    if (trigger){
+                        run(cmd[2] as Commands)
+                        trigger = false;
+                    }
+                } else {
+                    trigger = true;
                 }
 
                 basic.pause(20)
