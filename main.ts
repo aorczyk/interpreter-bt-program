@@ -29,6 +29,8 @@ let variables: number[] = [0,0,0]
 let threadsNr = 0;
 let keyCode: number = null;
 let lastKeyCode: number = null;
+let baseDegree: number = null;
+let clapsCounter: number = null;
 
 function messageHandler(receivedString: string) {
     let data = receivedString.split(';')
@@ -83,6 +85,8 @@ function compare(a: number, t: number, b: number){
     return (t == 1) ? a > b : (t == 2) ? a < b : (t == 3) ? a === b : (t == 4) ? a !== b : false
 }
 
+let claspsNr: number = null;
+
 function getData(id: number){
     if (id == 1){
         return input.lightLevel()
@@ -125,6 +129,34 @@ function getData(id: number){
     }
     else if (id == 14) {
         return lastKeyCode
+    }
+    else if (id == 15) {
+        if (claspsNr === null){
+            let lastClaps: number = 0;
+            let hasHight: boolean = false;
+            let counter: number = 0;
+
+            control.runInBackground(() => {
+                while (!forceStop) {
+                    let sound = input.soundLevel()
+                    if (sound > 100){
+                        hasHight = true
+                    } else if (hasHight){
+                        hasHight = false
+                        counter += 1;
+                        lastClaps = input.runningTime()
+                    }
+
+                    if (input.runningTime() - lastClaps > 1000){
+                        claspsNr = counter;
+                        counter = 0;
+                    }
+                    basic.pause(20)
+                }
+            })
+        }
+
+        return claspsNr
     }
 
     return 0
@@ -214,11 +246,13 @@ function runCommand(cmd: Commands){
         
         while (!forceStop) {
             if (p1) {
-                if (!compare(
+                let test = compare(
                     p1 == -1 ? (input.runningTime() - st) / 100 : getData(p1),
-                    p2, 
+                    p2,
                     p3
-                )){
+                );
+
+                if (!test){
                     break;
                 }
             }
@@ -290,6 +324,49 @@ function runCommand(cmd: Commands){
         })
     }
 }
+
+// --- Rotation by angle using compass ---
+
+// Sometimes does not work properly because of compass sensor errors.
+// Eg. the same direction degree: 100, 90, 120, ... not the same.
+
+// function fixDegree(degree: number) {
+//     if (degree <= 0) {
+//         return degree + 360
+//     } else if (degree >= 360) {
+//         return degree - 360 * Math.trunc(degree / 360)
+//     }
+//     return degree
+// }
+
+// function turnAngle(angle: number, handler: Function, deviation: number = 10) {
+//     let degrees = input.compassHeading()
+//     let turnDegreeA = degrees
+//     let turnDegreeB = degrees
+
+//     if (angle > 0) {
+//         turnDegreeA = fixDegree(degrees + angle)
+//         turnDegreeB = fixDegree(degrees + angle + deviation)
+//     } else {
+//         turnDegreeA = fixDegree(degrees + angle - deviation)
+//         turnDegreeB = fixDegree(degrees + angle)
+//     }
+
+//     let test = false;
+
+//     while (!test) {
+//         let degrees = input.compassHeading()
+//         if (turnDegreeA > turnDegreeB) {
+//             test = (degrees >= turnDegreeA) || (degrees <= turnDegreeB)
+//         } else {
+//             test = (degrees >= turnDegreeA) && (degrees <= turnDegreeB)
+//         }
+//         basic.pause(10)
+//     }
+
+//     handler()
+// }
+
 
 // input.onButtonPressed(Button.A, function() {
 //     // commands = [0, [2, 0, 0], [5, 1, 1, 10, [[2, 0, 0], [1, 1], [3, 0, 0], [1, 1]]], [2, 1, 1]] as Commands;
