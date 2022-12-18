@@ -85,7 +85,7 @@ function compare(a: number, t: number, b: number){
     return (t == 1) ? a > b : (t == 2) ? a < b : (t == 3) ? a === b : (t == 4) ? a !== b : false
 }
 
-let claspsNr: number = null;
+let clapsNr: number = null;
 
 function getData(id: number){
     if (id == 1){
@@ -131,24 +131,25 @@ function getData(id: number){
         return lastKeyCode
     }
     else if (id == 15) {
-        if (claspsNr === null){
+        if (clapsNr === null){
+            clapsNr = 0
             let lastClaps: number = 0;
-            let hasHight: boolean = false;
+            let wasNoise: boolean = false;
             let counter: number = 0;
 
             control.runInBackground(() => {
                 while (!forceStop) {
                     let sound = input.soundLevel()
                     if (sound > 100){
-                        hasHight = true
-                    } else if (hasHight){
-                        hasHight = false
+                        wasNoise = true
+                    } else if (wasNoise){
+                        wasNoise = false
                         counter += 1;
                         lastClaps = input.runningTime()
                     }
 
                     if (input.runningTime() - lastClaps > 1000){
-                        claspsNr = counter;
+                        clapsNr = counter;
                         counter = 0;
                     }
                     basic.pause(20)
@@ -156,7 +157,7 @@ function getData(id: number){
             })
         }
 
-        return claspsNr
+        return clapsNr
     }
 
     return 0
