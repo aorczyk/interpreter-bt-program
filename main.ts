@@ -31,6 +31,8 @@ let keyCode: number = null;
 let lastKeyCode: number = null;
 let baseDegree: number = null;
 let clapsCounter: number = null;
+let clapsProcessDelay: number = 700;
+let clapsTriggerValue: number = 50;
 
 function messageHandler(receivedString: string) {
     let data = receivedString.split(';')
@@ -140,20 +142,25 @@ function getData(id: number){
             control.runInBackground(() => {
                 while (!forceStop) {
                     let sound = input.soundLevel()
-                    if (sound > 100){
+                    // let sound = input.lightLevel()
+                    if (sound > clapsTriggerValue){
                         wasNoise = true
-                    } else if (wasNoise){
-                        wasNoise = false
-                        counter += 1;
-                        lastClaps = input.runningTime()
+                    } else {
+                        if (wasNoise) {
+                            wasNoise = false
+                            counter += 1;
+                            lastClaps = input.runningTime()
+                        }
                     }
 
-                    if (input.runningTime() - lastClaps > 1000){
+                    if (!wasNoise && ((input.runningTime() - lastClaps) > clapsProcessDelay)){
                         clapsNr = counter;
                         counter = 0;
                     }
                     basic.pause(20)
                 }
+
+                clapsNr = null
             })
         }
 
@@ -295,7 +302,13 @@ function runCommand(cmd: Commands){
         }
     }
     else if (id == 10) {
-        pins.setPull(DigitalPin.P1, PinPullMode.PullUp)
+        if (cmd[1] == 1){
+            pins.setPull(DigitalPin.P1, PinPullMode.PullUp)
+        } else if (cmd[1] == 2) {
+            clapsProcessDelay = cmd[2] as number
+        } else if (cmd[1] == 3) {
+            clapsTriggerValue = cmd[2] as number
+        }
     }
     else if (id == 11) {
         btSend(cmd[1] + ';')
