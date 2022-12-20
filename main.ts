@@ -31,7 +31,7 @@ let keyCode: number = null;
 let lastKeyCode: number = null;
 let baseDegree: number = null;
 let clapsCounter: number = null;
-let clapsProcessDelay: number = 700;
+let clapsProcessDelay: number = 1000;
 let clapsTriggerValue: number = 50;
 
 function messageHandler(receivedString: string) {
@@ -144,16 +144,16 @@ function getData(id: number){
                     let sound = input.soundLevel()
                     // let sound = input.lightLevel()
                     if (sound > clapsTriggerValue){
-                        wasNoise = true
-                    } else {
-                        if (wasNoise) {
-                            wasNoise = false
+                        if (!wasNoise) {
+                            wasNoise = true
                             counter += 1;
                             lastClaps = input.runningTime()
                         }
+                    } else {
+                        wasNoise = false
                     }
 
-                    if (!wasNoise && ((input.runningTime() - lastClaps) > clapsProcessDelay)){
+                    if ((input.runningTime() - lastClaps) > clapsProcessDelay){
                         clapsNr = counter;
                         counter = 0;
                     }
@@ -165,6 +165,9 @@ function getData(id: number){
         }
 
         return clapsNr
+    }
+    else if (id == 16) {
+        return pins.analogReadPin(AnalogPin.P1);
     }
 
     return 0
@@ -308,6 +311,8 @@ function runCommand(cmd: Commands){
             clapsProcessDelay = cmd[2] as number
         } else if (cmd[1] == 3) {
             clapsTriggerValue = cmd[2] as number
+        } else if (cmd[1] == 4) {
+            pins.setPull(DigitalPin.P1, PinPullMode.PullDown)
         }
     }
     else if (id == 11) {
