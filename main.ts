@@ -19,7 +19,7 @@ bluetooth.onUartDataReceived(serial.delimiters(Delimiters.NewLine), function () 
         messageHandler(bluetooth.uartReadUntil(serial.delimiters(Delimiters.NewLine)))
 })
 
-type Commands = (number | number[])[]
+type Commands = (number | number[] | number[][])[]
 
 let commandsString = ''
 let commands: Commands = []
@@ -173,6 +173,26 @@ function getData(id: number){
     return 0
 }
 
+function testConditions(conditions: Commands){
+    let test = null;
+    let operator = null;
+
+    for (let condition of conditions as number[][]) {
+        let out = compare(getData(condition[0]), condition[1], condition[2])
+
+        if (operator == 1) {
+            test = test && out
+        } else if (operator == 2) {
+            test = test || out
+        } else {
+            test = out
+        }
+
+        operator = condition[3]
+    }
+
+    return test
+}
 
 function runCommand(cmd: Commands){
     let id = cmd[0];
@@ -281,17 +301,15 @@ function runCommand(cmd: Commands){
         })
     }
     else if (id == 8) {
-        if (compare(
-            getData(cmd[1] as number),
-            cmd[2] as number,
-            cmd[3] as number
-        )) {
-            if (cmd[4] || !cmd[5]) {
-                cmd[5] = 1
-                run(cmd[6] as Commands)
+        let test = testConditions(cmd[1] as Commands)
+
+        if (test) {
+            if (cmd[2] || !cmd[3]) {
+                cmd[3] = 1
+                run(cmd[4] as Commands)
             }
         } else {
-            cmd[5] = 0
+            cmd[3] = 0
         }
     }
     else if (id == 9) {
@@ -304,17 +322,17 @@ function runCommand(cmd: Commands){
             variables[cmd[1] as number] -= a
         }
     }
-    else if (id == 10) {
-        if (cmd[1] == 1){
-            pins.setPull(DigitalPin.P1, PinPullMode.PullUp)
-        } else if (cmd[1] == 2) {
-            clapsProcessDelay = cmd[2] as number
-        } else if (cmd[1] == 3) {
-            clapsTriggerValue = cmd[2] as number
-        } else if (cmd[1] == 4) {
-            pins.setPull(DigitalPin.P1, PinPullMode.PullDown)
-        }
-    }
+    // else if (id == 10) {
+    //     if (cmd[1] == 1){
+    //         pins.setPull(DigitalPin.P1, PinPullMode.PullUp)
+    //     } else if (cmd[1] == 2) {
+    //         clapsProcessDelay = cmd[2] as number
+    //     } else if (cmd[1] == 3) {
+    //         clapsTriggerValue = cmd[2] as number
+    //     } else if (cmd[1] == 4) {
+    //         pins.setPull(DigitalPin.P1, PinPullMode.PullDown)
+    //     }
+    // }
     else if (id == 11) {
         btSend(cmd[1] + ';')
     }
