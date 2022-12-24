@@ -89,8 +89,11 @@ function compare(a: number, t: number, b: number){
 
 let clapsNr: number = null;
 
-function getData(id: number){
-    if (id == 1){
+function getData(id: number, p1?: number){
+    if (id == 0) {
+        return 1
+    }
+    else if (id == 1){
         return input.lightLevel()
     }
     else if (id == 2){
@@ -169,26 +172,25 @@ function getData(id: number){
     else if (id == 16) {
         return pins.analogReadPin(AnalogPin.P1);
     }
+    else if (id == -1) {
+        return (input.runningTime() - p1) / 100
+    }
 
     return 0
 }
 
-function testConditions(conditions: Commands){
+function testConditions(conditions: Commands, p1?: number){
+    // let c = conditions as number[][];
+    // return compare(getData(c[0][0], p1), c[0][1], c[0][2])
+
     let test = null;
-    let operator = null;
+    let op = null;
 
-    for (let condition of conditions as number[][]) {
-        let out = compare(getData(condition[0]), condition[1], condition[2])
+    for (let c of conditions as number[][]) {
+        let out = compare(getData(c[0], p1), c[1], c[2])
+        test = op == null ? out : op == 1 ? test && out : test || out;
 
-        if (operator == 1) {
-            test = test && out
-        } else if (operator == 2) {
-            test = test || out
-        } else {
-            test = out
-        }
-
-        operator = condition[3]
+        op = c[3]
     }
 
     return test
@@ -270,26 +272,18 @@ function runCommand(cmd: Commands){
     // work properly.
 
     else if (id == 5 || id == 6) {
-        let p1 = cmd[1] as number;
-        let p2 = cmd[2] as number;
-        let p3 = cmd[3] as number;
-        let st = input.runningTime();
+        // let p1 = cmd[1] as Commands;
+        let startWait = input.runningTime();
         
         while (!forceStop) {
-            if (p1) {
-                let test = compare(
-                    p1 == -1 ? (input.runningTime() - st) / 100 : getData(p1),
-                    p2,
-                    p3
-                );
-
-                if (!test){
+            // if (p1[0][0]) {
+            if (!testConditions(cmd[1] as Commands, startWait)){
                     break;
                 }
-            }
+            // }
 
-            if (cmd[4]){
-                run(cmd[4] as Commands)
+            if (cmd[2]){
+                run(cmd[2] as Commands)
             }
 
             basic.pause(20)
@@ -301,9 +295,7 @@ function runCommand(cmd: Commands){
         })
     }
     else if (id == 8) {
-        let test = testConditions(cmd[1] as Commands)
-
-        if (test) {
+        if (testConditions(cmd[1] as Commands)) {
             if (cmd[2] || !cmd[3]) {
                 cmd[3] = 1
                 run(cmd[4] as Commands)
@@ -322,17 +314,20 @@ function runCommand(cmd: Commands){
             variables[cmd[1] as number] -= a
         }
     }
-    // else if (id == 10) {
-    //     if (cmd[1] == 1){
-    //         pins.setPull(DigitalPin.P1, PinPullMode.PullUp)
-    //     } else if (cmd[1] == 2) {
-    //         clapsProcessDelay = cmd[2] as number
-    //     } else if (cmd[1] == 3) {
-    //         clapsTriggerValue = cmd[2] as number
-    //     } else if (cmd[1] == 4) {
-    //         pins.setPull(DigitalPin.P1, PinPullMode.PullDown)
-    //     }
-    // }
+    else if (id == 10) {
+        // if (cmd[1] == 1){
+        //     pins.setPull(DigitalPin.P1, PinPullMode.PullUp)
+        // } 
+        // else if (cmd[1] == 2) {
+        //     clapsProcessDelay = cmd[2] as number
+        // } 
+        // else if (cmd[1] == 3) {
+        //     clapsTriggerValue = cmd[2] as number
+        // } 
+        // else if (cmd[1] == 4) {
+        //     pins.setPull(DigitalPin.P1, PinPullMode.PullDown)
+        // }
+    }
     else if (id == 11) {
         btSend(cmd[1] + ';')
     }
@@ -405,9 +400,9 @@ function runCommand(cmd: Commands){
 // }
 
 
-// input.onButtonPressed(Button.A, function() {
-//     // commands = [0, [2, 0, 0], [5, 1, 1, 10, [[2, 0, 0], [1, 1], [3, 0, 0], [1, 1]]], [2, 1, 1]] as Commands;
-//     // commands = [0, [5, 2, 2, 100, [[2, 0, 0], [1, 1], [3, 0, 0], [1, 1]]], [2, 1, 1]] as Commands;
-//     // commands = [0, [6, 2, 2, 50], [2, 1, 1]] as Commands;
-//     run(commands)
-// })
+input.onButtonPressed(Button.A, function() {
+    // commands = [0, [2, 0, 0], [5, 1, 1, 10, [[2, 0, 0], [1, 1], [3, 0, 0], [1, 1]]], [2, 1, 1]] as Commands;
+    // commands = [0, [5, 2, 2, 100, [[2, 0, 0], [1, 1], [3, 0, 0], [1, 1]]], [2, 1, 1]] as Commands;
+    commands = [0, [6, [[-1, 2, 20]]], [2, 1, 1]] as Commands;
+    run(commands)
+})
