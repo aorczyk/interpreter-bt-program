@@ -29,10 +29,8 @@ let variables: number[] = [0,0,0]
 let threadsNr = 0;
 let keyCode: number = null;
 let lastKeyCode: number = null;
-let baseDegree: number = null;
+// let baseDegree: number = null;
 let clapsCounter: number = null;
-let clapsProcessDelay: number = 1000;
-let clapsTriggerValue: number = 50;
 
 function messageHandler(receivedString: string) {
     let data = receivedString.split(';')
@@ -90,10 +88,7 @@ function compare(a: number, t: number, b: number){
 let clapsNr: number = null;
 
 function getData(id: number, p1?: number){
-    if (id == 0) {
-        return 1
-    }
-    else if (id == 1){
+    if (id == 1){
         return input.lightLevel()
     }
     else if (id == 2){
@@ -146,7 +141,7 @@ function getData(id: number, p1?: number){
                 while (!forceStop) {
                     let sound = input.soundLevel()
                     // let sound = input.lightLevel()
-                    if (sound > clapsTriggerValue){
+                    if (sound > 50){
                         if (!wasNoise) {
                             wasNoise = true
                             counter += 1;
@@ -156,7 +151,7 @@ function getData(id: number, p1?: number){
                         wasNoise = false
                     }
 
-                    if ((input.runningTime() - lastClaps) > clapsProcessDelay){
+                    if ((input.runningTime() - lastClaps) > 1000){
                         clapsNr = counter;
                         counter = 0;
                     }
@@ -176,20 +171,19 @@ function getData(id: number, p1?: number){
         return (input.runningTime() - p1) / 100
     }
 
-    return 0
+    return 1
 }
 
 function testConditions(conditions: Commands, p1?: number){
     // let c = conditions as number[][];
     // return compare(getData(c[0][0], p1), c[0][1], c[0][2])
 
-    let test = null;
+    let test = true;
     let op = null;
 
     for (let c of conditions as number[][]) {
         let out = compare(getData(c[0], p1), c[1], c[2])
         test = op == null ? out : op == 1 ? test && out : test || out;
-
         op = c[3]
     }
 
@@ -278,8 +272,8 @@ function runCommand(cmd: Commands){
         while (!forceStop) {
             // if (p1[0][0]) {
             if (!testConditions(cmd[1] as Commands, startWait)){
-                    break;
-                }
+                break;
+            }
             // }
 
             if (cmd[2]){
