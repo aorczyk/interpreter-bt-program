@@ -171,7 +171,7 @@ function getData(id: number, p1?: number){
         return (input.runningTime() - p1) / 100
     }
     else if (id == 17) {
-        return Math.abs(input.acceleration(Dimension.X)) > 20 || Math.abs(input.acceleration(Dimension.Y)) > 20 ? 1 : 0
+        return Math.abs(input.acceleration(Dimension.X)) > 400 || Math.abs(input.acceleration(Dimension.Y)) > 400 ? 1 : 0
     }
 
     return 1
@@ -312,28 +312,22 @@ function runCommand(cmd: Commands){
         }
     }
     else if (id == 10) {
-        // if (cmd[1] == 1){
-        //     pins.setPull(DigitalPin.P1, PinPullMode.PullUp)
-        // } 
-        // else if (cmd[1] == 2) {
-        //     clapsProcessDelay = cmd[2] as number
-        // } 
-        // else if (cmd[1] == 3) {
-        //     clapsTriggerValue = cmd[2] as number
-        // } 
-        // else if (cmd[1] == 4) {
-        //     pins.setPull(DigitalPin.P1, PinPullMode.PullDown)
-        // }
+        if (cmd[1] == 1){
+            pins.setPull(DigitalPin.P1, PinPullMode.PullUp)
+        } 
+        else if (cmd[1] == 2) {
+            pins.setPull(DigitalPin.P1, PinPullMode.PullDown)
+        }
     }
-    else if (id == 11) {
-        btSend(cmd[1] + ';')
-    }
-    else if (id == 12) {
-        forceStop = true
-    }
-    else if (id == 13) {
-        control.reset()
-    }
+    // else if (id == 11) {
+    //     btSend(cmd[1] + ';')
+    // }
+    // else if (id == 12) {
+    //     forceStop = true
+    // }
+    // else if (id == 13) {
+    //     control.reset()
+    // }
     else if (id == 14) {
         let p1 = cmd[1] as number;
         let trigger = true;
@@ -396,10 +390,11 @@ function runCommand(cmd: Commands){
 //     handler()
 // }
 
-
+// basic.showString("T")
 // input.onButtonPressed(Button.A, function() {
 //     // commands = [0, [2, 0, 0], [5, 1, 1, 10, [[2, 0, 0], [1, 1], [3, 0, 0], [1, 1]]], [2, 1, 1]] as Commands;
 //     // commands = [0, [5, 2, 2, 100, [[2, 0, 0], [1, 1], [3, 0, 0], [1, 1]]], [2, 1, 1]] as Commands;
-//     commands = [0, [6, [[-1, 2, 20]]], [2, 1, 1]] as Commands;
+//     // commands = [0, [6, [[-1, 2, 20]]], [2, 1, 1]] as Commands;
+//     commands = [0, [6, [[17, 2, 1]]], [2, 2, 2]] as Commands;
 //     run(commands)
 // })
