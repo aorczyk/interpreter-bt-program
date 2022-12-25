@@ -121,9 +121,9 @@ function getData(id: number, p1?: number){
     else if (id == 11) {
         return pins.digitalReadPin(DigitalPin.P1);
     }
-    else if (id == 12) {
-        return sonar.ping(DigitalPin.P1, DigitalPin.P2, PingUnit.Centimeters)
-    }
+    // else if (id == 12) {
+    //     return sonar.ping(DigitalPin.P1, DigitalPin.P2, PingUnit.Centimeters)
+    // }
     else if (id == 13) {
         return keyCode
     }
@@ -169,6 +169,9 @@ function getData(id: number, p1?: number){
     }
     else if (id == -1) {
         return (input.runningTime() - p1) / 100
+    }
+    else if (id == 17) {
+        return Math.abs(input.acceleration(Dimension.X)) > 20 || Math.abs(input.acceleration(Dimension.Y)) > 20 ? 1 : 0
     }
 
     return 1
