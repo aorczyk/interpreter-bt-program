@@ -3,7 +3,7 @@ bluetooth.startUartService()
 led.plot(0, 0)
 
 bluetooth.onBluetoothConnected(function () {
-    led.plot(1,0)
+    led.plot(2,0)
 })
 
 bluetooth.onBluetoothDisconnected(function () {
@@ -29,8 +29,7 @@ let variables: number[] = [0,0,0]
 let threadsNr = 0;
 let keyCode: number = null;
 let lastKeyCode: number = null;
-// let baseDegree: number = null;
-let clapsCounter: number = null;
+let clapsNr: number = null;
 
 function messageHandler(receivedString: string) {
     let data = receivedString.split(';')
@@ -48,7 +47,7 @@ function messageHandler(receivedString: string) {
         return
     } else if (data[0] == '>'){
         receivingCommand = false
-        led.plot(2, 0)
+        led.plot(4, 0)
         btSend('1')
         return
     } else if (receivingCommand) {
@@ -84,8 +83,6 @@ pfTransmitter.connectIrSenderLed(AnalogPin.P0)
 function compare(a: number, t: number, b: number){
     return (t == 1) ? a > b : (t == 2) ? a < b : (t == 3) ? a === b : (t == 4) ? a !== b : false
 }
-
-let clapsNr: number = null;
 
 function getData(id: number, p1?: number){
     if (id == 1){
@@ -141,7 +138,7 @@ function getData(id: number, p1?: number){
                 while (!forceStop) {
                     let sound = input.soundLevel()
                     // let sound = input.lightLevel()
-                    if (sound > 50){
+                    if (sound > 100){
                         if (!wasNoise) {
                             wasNoise = true
                             counter += 1;
@@ -174,7 +171,7 @@ function getData(id: number, p1?: number){
         return Math.abs(input.acceleration(Dimension.X)) > 400 || Math.abs(input.acceleration(Dimension.Y)) > 400 ? 1 : 0
     }
 
-    return 1
+    return 0
 }
 
 function testConditions(conditions: Commands, p1?: number){
