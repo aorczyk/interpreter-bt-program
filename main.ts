@@ -208,7 +208,7 @@ function runCommand(cmd: Commands){
     } else if (id == 3) {
         led.unplot(cmd[1] as number, cmd[2] as number)
     } else if (id == 4) {
-        let pfCommand: PfSingleOutput;
+        // let pfCommand: PfSingleOutput;
 
         // if (cmd[3] == 0) {
         //     pfCommand = PfSingleOutput.Float
@@ -249,7 +249,7 @@ function runCommand(cmd: Commands){
         //     pfCommand = PfSingleOutput.DecrementPWM
         // }
         
-        pfTransmitter.singleOutputMode(cmd[1] as PfChannel, cmd[2] as PfOutput, pfCommand)
+        pfTransmitter.singleOutputMode(cmd[1] as PfChannel, cmd[2] as PfOutput, cmd[3] as PfSingleOutput)
     }
     // Repeat Block
     // Use this block to repeat actions.
