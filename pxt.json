@@ -5,8 +5,7 @@
         "core": "*",
         "microphone": "*",
         "bluetooth": "*",
-        "PF Transmitter": "github:aorczyk/lego-pf-transmitter#v0.0.7",
-        "pxt-sonar": "github:microsoft/pxt-sonar#v0.0.5"
+        "PF Transmitter": "github:aorczyk/lego-pf-transmitter#v0.0.7"
     },
     "files": [
         "main.ts",
