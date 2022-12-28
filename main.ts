@@ -78,7 +78,7 @@ function run(commands: Commands){
     }
 }
 
-pfTransmitter.connectIrSenderLed(AnalogPin.P1)
+pfTransmitter.connectIrSenderLed(AnalogPin.P0)
 
 function compare(a: number, t: number, b: number){
     return (t == 1) ? a > b : (t == 2) ? a < b : (t == 3) ? a === b : (t == 4) ? a !== b : false
@@ -347,10 +347,10 @@ function runCommand(cmd: Commands){
             }
         })
     }
-    else if (id == 15) {
-        music.playTone(cmd[1] as number, music.beat())
-        basic.pause(cmd[2] as number * 100)
-    }
+    // else if (id == 15) {
+    //     music.playTone(cmd[1] as number, music.beat())
+    //     basic.pause(cmd[2] as number * 100)
+    // }
 }
 
 // --- Rotation by angle using compass ---
