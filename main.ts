@@ -1,4 +1,4 @@
-bluetooth.startUartService()
+ bluetooth.startUartService()
 
 led.plot(0, 0)
 
@@ -78,7 +78,7 @@ function run(commands: Commands){
     }
 }
 
-pfTransmitter.connectIrSenderLed(AnalogPin.P0)
+pfTransmitter.connectIrSenderLed(AnalogPin.P1)
 
 function compare(a: number, t: number, b: number){
     return (t == 1) ? a > b : (t == 2) ? a < b : (t == 3) ? a === b : (t == 4) ? a !== b : false
@@ -243,13 +243,16 @@ function runCommand(cmd: Commands){
         //     pfCommand = PfSingleOutput.Backward7
         // } else if (cmd[3] == 15) {
         //     pfCommand = PfSingleOutput.BrakeThenFloat
-        // } else if (cmd[3] == 16) {
+        // } else 
+
+        // if (cmd[3] == 16) {
         //     pfCommand = PfSingleOutput.IncrementPWM
         // } else if (cmd[3] == 17) {
         //     pfCommand = PfSingleOutput.DecrementPWM
         // }
-        
+        // pfTransmitter.singleOutputMode(cmd[1] as PfChannel, cmd[2] as PfOutput, pfCommand)
         pfTransmitter.singleOutputMode(cmd[1] as PfChannel, cmd[2] as PfOutput, cmd[3] as PfSingleOutput)
+        // basic.pause(1000)
     }
     // Repeat Block
     // Use this block to repeat actions.
