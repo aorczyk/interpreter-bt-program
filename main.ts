@@ -47,26 +47,15 @@ function messageHandler(receivedString: string) {
         return
     } else if (data[0] == '>'){
         receivingCommand = false
+        commands = JSON.parse(commandsString)
         led.plot(4, 0)
         btSend('1')
-        // // Run program
-        // forceStop = false
-        // if (commandsString) {
-        //     commands = JSON.parse(commandsString)
-
-        //     control.runInBackground(() => run(commands))
-        // }
-        // return
     } else if (receivingCommand) {
         commandsString += data[0]
     } 
-    else if (keyCode == 13) {
+    else if (data[0] == '>>') {
         forceStop = false
-        if (commandsString) {
-            commands = JSON.parse(commandsString)
-
-            control.runInBackground(() => run(commands))
-        }
+        control.runInBackground(() => run(commands))
     }
 }
 
