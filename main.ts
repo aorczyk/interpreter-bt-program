@@ -49,10 +49,18 @@ function messageHandler(receivedString: string) {
         receivingCommand = false
         led.plot(4, 0)
         btSend('1')
-        return
+        // // Run program
+        // forceStop = false
+        // if (commandsString) {
+        //     commands = JSON.parse(commandsString)
+
+        //     control.runInBackground(() => run(commands))
+        // }
+        // return
     } else if (receivingCommand) {
         commandsString += data[0]
-    } else if (data[0] == '>>') {
+    } 
+    else if (keyCode == 13) {
         forceStop = false
         if (commandsString) {
             commands = JSON.parse(commandsString)
@@ -269,7 +277,7 @@ function runCommand(cmd: Commands){
     // This block always requires input in order to
     // work properly.
 
-    else if (id == 5 || id == 6) {
+    else if (id == 5 || id == 6 || id == 16) {
         // let p1 = cmd[1] as Commands;
         let startWait = input.runningTime();
         
