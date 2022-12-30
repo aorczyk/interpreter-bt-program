@@ -11,7 +11,7 @@ bluetooth.onBluetoothDisconnected(function () {
     led.plot(0, 0)
 })
 
-function btSend(str: string){
+function btSend(str: string | number){
     bluetooth.uartWriteString(str + '\n')
 }
 
@@ -69,9 +69,11 @@ function run(commands: Commands){
         }
     }
 
+    basic.pause(20)
+    
     threadsNr -= 1
     if (threadsNr == 0){
-        btSend('E' + threadsNr)
+        btSend(200)
     }
 }
 
@@ -205,51 +207,7 @@ function runCommand(cmd: Commands){
     } else if (id == 3) {
         led.unplot(cmd[1] as number, cmd[2] as number)
     } else if (id == 4) {
-        // let pfCommand: PfSingleOutput;
-
-        // if (cmd[3] == 0) {
-        //     pfCommand = PfSingleOutput.Float
-        // } 
-        // else if (cmd[3] == 1) {
-        //     pfCommand = PfSingleOutput.Forward1
-        // } else if (cmd[3] == 2) {
-        //     pfCommand = PfSingleOutput.Forward2
-        // } else if (cmd[3] == 3) {
-        //     pfCommand = PfSingleOutput.Forward3
-        // } else if (cmd[3] == 4) {
-        //     pfCommand = PfSingleOutput.Forward4
-        // } else if (cmd[3] == 5) {
-        //     pfCommand = PfSingleOutput.Forward5
-        // } else if (cmd[3] == 6) {
-        //     pfCommand = PfSingleOutput.Forward6
-        // } else if (cmd[3] == 7) {
-        //     pfCommand = PfSingleOutput.Forward7
-        // } else if (cmd[3] == 8) {
-        //     pfCommand = PfSingleOutput.Backward1
-        // } else if (cmd[3] == 9) {
-        //     pfCommand = PfSingleOutput.Backward2
-        // } else if (cmd[3] == 10) {
-        //     pfCommand = PfSingleOutput.Backward3
-        // } else if (cmd[3] == 11) {
-        //     pfCommand = PfSingleOutput.Backward4
-        // } else if (cmd[3] == 12) {
-        //     pfCommand = PfSingleOutput.Backward5
-        // } else if (cmd[3] == 13) {
-        //     pfCommand = PfSingleOutput.Backward6
-        // } else if (cmd[3] == 14) {
-        //     pfCommand = PfSingleOutput.Backward7
-        // } else if (cmd[3] == 15) {
-        //     pfCommand = PfSingleOutput.BrakeThenFloat
-        // } else 
-
-        // if (cmd[3] == 16) {
-        //     pfCommand = PfSingleOutput.IncrementPWM
-        // } else if (cmd[3] == 17) {
-        //     pfCommand = PfSingleOutput.DecrementPWM
-        // }
-        // pfTransmitter.singleOutputMode(cmd[1] as PfChannel, cmd[2] as PfOutput, pfCommand)
         pfTransmitter.singleOutputMode(cmd[1] as PfChannel, cmd[2] as PfOutput, cmd[3] as PfSingleOutput)
-        // basic.pause(1000)
     }
     // Repeat Block
     // Use this block to repeat actions.
