@@ -1,4 +1,7 @@
- bluetooth.startUartService()
+// MyMicrobit - code panel interpreter.
+// Author: Adam Orczyk
+
+bluetooth.startUartService()
 
 led.plot(0, 0)
 
@@ -168,6 +171,12 @@ function getData(id: number, p1?: number){
     }
     else if (id == 17) {
         return Math.abs(input.acceleration(Dimension.X)) > 400 || Math.abs(input.acceleration(Dimension.Y)) > 400 ? 1 : 0
+    }
+    else if (id == 18) {
+        return input.buttonIsPressed(Button.A) ? 1 : 0
+    }
+    else if (id == 19) {
+        return input.buttonIsPressed(Button.B) ? 1 : 0
     }
 
     return 0
