@@ -234,15 +234,12 @@ function runCommand(cmd: Commands){
     // work properly.
 
     else if (id == 5 || id == 6 || id == 16) {
-        // let p1 = cmd[1] as Commands;
         let startWait = input.runningTime();
         
         while (!forceStop) {
-            // if (p1[0][0]) {
             if (!testConditions(cmd[1] as Commands, startWait)){
                 break;
             }
-            // }
 
             if (cmd[2]){
                 run(cmd[2] as Commands)
@@ -358,6 +355,8 @@ function runCommand(cmd: Commands){
 
 //     handler()
 // }
+
+// -- Tests --
 
 // input.onButtonPressed(Button.A, function() {
 //     // commands = [0, [2, 0, 0], [5, 1, 1, 10, [[2, 0, 0], [1, 1], [3, 0, 0], [1, 1]]], [2, 1, 1]] as Commands;
