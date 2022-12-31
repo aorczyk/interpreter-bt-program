@@ -1,6 +1,8 @@
 // MyMicrobit - code panel interpreter.
 // Author: Adam Orczyk
 
+// pins.setAudioPin(AnalogPin.P2)
+
 bluetooth.startUartService()
 
 led.plot(0, 0)
@@ -265,12 +267,15 @@ function runCommand(cmd: Commands){
     }
     else if (id == 9) {
         let a = cmd[3] as number;
+        let n = cmd[1] as number;
         if (cmd[2] == 1) {
-            variables[cmd[1] as number] = a
+            variables[n] = a
         } else if (cmd[2] == 2) {
-            variables[cmd[1] as number] += a
+            variables[n] += a
         } else if (cmd[2] == 3) {
-            variables[cmd[1] as number] -= a
+            variables[n] -= a
+        } else if (cmd[2] == 4) {
+            variables[n] = getData(a)
         }
     }
     else if (id == 10) {
