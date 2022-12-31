@@ -214,6 +214,9 @@ function runCommand(cmd: Commands){
         btSend(data.join(','))
     }
     else if (id == 2) {
+        // let p1 = cmd[1] as number;
+        // let x = Math.trunc(p1)
+        // let y = Math.trunc((p1 - x) * 10)
         led.plot(cmd[1] as number, cmd[2] as number)
     } else if (id == 3) {
         led.unplot(cmd[1] as number, cmd[2] as number)
