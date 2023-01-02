@@ -192,7 +192,7 @@ function testConditions(conditions: Commands, p1?: number){
     let op = null;
 
     for (let c of conditions as number[][]) {
-        let out = compare(getData(c[0], p1), c[1], c[2])
+        let out = compare(getData(c[0], p1), c[1], c[1] < 5 ? c[2] : getData(c[2], p1))
         test = op == null ? out : op == 1 ? test && out : test || out;
         op = c[3]
     }
