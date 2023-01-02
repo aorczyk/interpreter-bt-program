@@ -122,9 +122,9 @@ function getData(id: number, p1?: number){
     else if (id == 11) {
         return pins.digitalReadPin(DigitalPin.P1);
     }
-    // else if (id == 12) {
-    //     return sonar.ping(DigitalPin.P1, DigitalPin.P2, PingUnit.Centimeters)
-    // }
+    else if (id == 12) {
+        return sonar.ping(DigitalPin.P1, DigitalPin.P2, PingUnit.Centimeters)
+    }
     else if (id == 13) {
         return keyCode
     }
