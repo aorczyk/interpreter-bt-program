@@ -85,7 +85,8 @@ function run(commands: Commands){
 pfTransmitter.connectIrSenderLed(AnalogPin.P0)
 
 function compare(a: number, t: number, b: number){
-    return (t == 1 || t == 5) ? a > b : (t == 2 || t == 6) ? a < b : (t == 3 || t == 7) ? a === b : (t == 4 || t == 8) ? a !== b : false
+    t = t > 4 ? t - 4 : t;
+    return t == 1 ? a > b : t == 2 ? a < b : t == 3 ? a === b : t == 4 ? a !== b : false
 }
 
 function getData(id: number, p1?: number){
@@ -265,7 +266,10 @@ function runCommand(cmd: Commands){
                 run(cmd[4] as Commands)
             }
         } else {
-            cmd[3] = 0
+            if (cmd[2] || cmd[3]) {
+                cmd[3] = 0
+                run(cmd[5] as Commands)
+            }
         }
     }
     else if (id == 9) {
