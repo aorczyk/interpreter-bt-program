@@ -201,6 +201,18 @@ function testConditions(conditions: Commands, p1?: number){
     return test
 }
 
+function plot(points: number[], action: number){
+    for (let n of points) {
+        let x = Math.trunc(n)
+        let y = Math.trunc((n - x) * 10)
+        if (action){
+            led.plot(x, y)
+        } else {
+            led.unplot(x, y)
+        }
+    }
+}
+
 function runCommand(cmd: Commands){
     let id = cmd[0];
 
@@ -215,12 +227,11 @@ function runCommand(cmd: Commands){
         btSend(data.join(','))
     }
     else if (id == 2) {
-        // let p1 = cmd[1] as number;
-        // let x = Math.trunc(p1)
-        // let y = Math.trunc((p1 - x) * 10)
-        led.plot(cmd[1] as number, cmd[2] as number)
+        // led.plot(cmd[1] as number, cmd[2] as number)
+        // let p1 = cmd[1] as number[];
+        plot(cmd[1] as number[], cmd[2] as number)
     } else if (id == 3) {
-        led.unplot(cmd[1] as number, cmd[2] as number)
+        // led.unplot(cmd[1] as number, cmd[2] as number)
     } else if (id == 4) {
         pfTransmitter.singleOutputMode(cmd[1] as PfChannel, cmd[2] as PfOutput, cmd[3] as PfSingleOutput)
     }
