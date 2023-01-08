@@ -270,12 +270,14 @@ function runCommand(cmd: Commands){
         if (testConditions(cmd[1] as Commands)) {
             if (cmd[2] || !cmd[3]) {
                 cmd[3] = 1
-                run(cmd[4] as Commands)
+                cmd[4] = 0
+                run(cmd[5] as Commands)
             }
         } else {
-            if (cmd[2] || cmd[3]) {
+            if (cmd[2] || !cmd[4]) {
                 cmd[3] = 0
-                run(cmd[5] as Commands)
+                cmd[4] = 1
+                run(cmd[6] as Commands)
             }
         }
     }
