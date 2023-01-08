@@ -1,29 +1,6 @@
 // MyMicrobit - code panel interpreter.
 // Author: Adam Orczyk
 
-// pins.setAudioPin(AnalogPin.P2)
-
-bluetooth.startUartService()
-
-led.plot(0, 0)
-
-bluetooth.onBluetoothConnected(function () {
-    led.plot(2,0)
-})
-
-bluetooth.onBluetoothDisconnected(function () {
-    basic.clearScreen()
-    led.plot(0, 0)
-})
-
-function btSend(str: string | number){
-    bluetooth.uartWriteString(str + '\n')
-}
-
-bluetooth.onUartDataReceived(serial.delimiters(Delimiters.NewLine), function () {
-        messageHandler(bluetooth.uartReadUntil(serial.delimiters(Delimiters.NewLine)))
-})
-
 type Commands = (number | number[] | number[][])[]
 
 let commandsString = ''
@@ -36,11 +13,31 @@ let keyCode: number = null;
 let lastKeyCode: number = null;
 let clapsNr: number = null;
 
+bluetooth.startUartService()
+
+led.plot(0, 0)
+
+bluetooth.onBluetoothConnected(function () {
+    led.plot(2, 0)
+})
+
+bluetooth.onBluetoothDisconnected(function () {
+    basic.clearScreen()
+    led.plot(0, 0)
+})
+
+function btSend(str: string | number) {
+    bluetooth.uartWriteString(str + '\n')
+}
+
+bluetooth.onUartDataReceived(serial.delimiters(Delimiters.NewLine), function () {
+    messageHandler(bluetooth.uartReadUntil(serial.delimiters(Delimiters.NewLine)))
+})
+
 function messageHandler(receivedString: string) {
     let data = receivedString.split(';')
     lastKeyCode = keyCode
     keyCode = +data.join('')
-
 
     if (data[0] == '0') {
         forceStop = true;
@@ -89,6 +86,7 @@ function compare(a: number, t: number, b: number){
     return t == 1 ? a > b : t == 2 ? a < b : t == 3 ? a === b : t == 4 ? a !== b : false
 }
 
+// --- Data handlers ---
 function getData(id: number, p1?: number){
     if (id == 1){
         return input.lightLevel()
@@ -186,9 +184,6 @@ function getData(id: number, p1?: number){
 }
 
 function testConditions(conditions: Commands, p1?: number){
-    // let c = conditions as number[][];
-    // return compare(getData(c[0][0], p1), c[0][1], c[0][2])
-
     let test = true;
     let op = null;
 
@@ -213,6 +208,7 @@ function plot(points: number[], action: number){
     }
 }
 
+// --- Commands ---
 function runCommand(cmd: Commands){
     let id = cmd[0];
 
@@ -227,11 +223,11 @@ function runCommand(cmd: Commands){
         btSend(data.join(','))
     }
     else if (id == 2) {
-        // led.plot(cmd[1] as number, cmd[2] as number)
+        led.plot(cmd[1] as number, cmd[2] as number)
         // let p1 = cmd[1] as number[];
-        plot(cmd[1] as number[], cmd[2] as number)
+        // plot(cmd[1] as number[], cmd[2] as number)
     } else if (id == 3) {
-        // led.unplot(cmd[1] as number, cmd[2] as number)
+        led.unplot(cmd[1] as number, cmd[2] as number)
     } else if (id == 4) {
         pfTransmitter.singleOutputMode(cmd[1] as PfChannel, cmd[2] as PfOutput, cmd[3] as PfSingleOutput)
     }
@@ -303,6 +299,9 @@ function runCommand(cmd: Commands){
         else if (cmd[1] == 2) {
             pins.setPull(DigitalPin.P1, PinPullMode.PullDown)
         }
+        // else if (cmd[1] == 3) {
+        //     pins.setAudioPin(AnalogPin.P2)
+        // }
     }
     // else if (id == 11) {
     //     btSend(cmd[1] + ';')
@@ -336,56 +335,3 @@ function runCommand(cmd: Commands){
     //     basic.pause(cmd[2] as number * 100)
     // }
 }
-
-// --- Rotation by angle using compass ---
-
-// Sometimes does not work properly because of compass sensor errors.
-// Eg. the same direction degree: 100, 90, 120, ... not the same.
-
-// function fixDegree(degree: number) {
-//     if (degree <= 0) {
-//         return degree + 360
-//     } else if (degree >= 360) {
-//         return degree - 360 * Math.trunc(degree / 360)
-//     }
-//     return degree
-// }
-
-// function turnAngle(angle: number, handler: Function, deviation: number = 10) {
-//     let degrees = input.compassHeading()
-//     let turnDegreeA = degrees
-//     let turnDegreeB = degrees
-
-//     if (angle > 0) {
-//         turnDegreeA = fixDegree(degrees + angle)
-//         turnDegreeB = fixDegree(degrees + angle + deviation)
-//     } else {
-//         turnDegreeA = fixDegree(degrees + angle - deviation)
-//         turnDegreeB = fixDegree(degrees + angle)
-//     }
-
-//     let test = false;
-
-//     while (!test) {
-//         let degrees = input.compassHeading()
-//         if (turnDegreeA > turnDegreeB) {
-//             test = (degrees >= turnDegreeA) || (degrees <= turnDegreeB)
-//         } else {
-//             test = (degrees >= turnDegreeA) && (degrees <= turnDegreeB)
-//         }
-//         basic.pause(10)
-//     }
-
-//     handler()
-// }
-
-// -- Tests --
-
-// input.onButtonPressed(Button.A, function() {
-//     // commands = [0, [2, 0, 0], [5, 1, 1, 10, [[2, 0, 0], [1, 1], [3, 0, 0], [1, 1]]], [2, 1, 1]] as Commands;
-//     // commands = [0, [5, 2, 2, 100, [[2, 0, 0], [1, 1], [3, 0, 0], [1, 1]]], [2, 1, 1]] as Commands;
-//     // commands = [0, [6, [[-1, 2, 20]]], [2, 1, 1]] as Commands;
-//     // commands = [0, [6, [[17, 2, 1]]], [2, 2, 2]] as Commands;
-//     commands = [0, [5, [[0, 3, 1, 0]], [[8, [[17, 3, 1, 0]], 0, 0, [[2, 2, 2]]]]]] as Commands;
-//     run(commands)
-// })
