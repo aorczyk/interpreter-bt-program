@@ -18,7 +18,7 @@ bluetooth.startUartService()
 led.plot(0, 0)
 
 bluetooth.onBluetoothConnected(function () {
-    led.plot(2, 0)
+    led.plot(1, 0)
 })
 
 bluetooth.onBluetoothDisconnected(function () {
@@ -50,7 +50,7 @@ function messageHandler(receivedString: string) {
     } else if (data[0] == '>'){
         receivingCommand = false
         commands = JSON.parse(commandsString)
-        led.plot(4, 0)
+        // led.plot(4, 0)
         btSend('1')
     } else if (receivingCommand) {
         commandsString += data[0]
@@ -268,16 +268,14 @@ function runCommand(cmd: Commands){
     }
     else if (id == 8) {
         if (testConditions(cmd[1] as Commands)) {
-            if (cmd[2] || !cmd[3]) {
+            if (cmd[2] || !cmd[3] || cmd[3] == 2) {
                 cmd[3] = 1
-                cmd[4] = 0
-                run(cmd[5] as Commands)
+                run(cmd[4] as Commands)
             }
         } else {
-            if (cmd[2] || !cmd[4]) {
+            if (cmd[2] || cmd[3]) {
                 cmd[3] = 0
-                cmd[4] = 1
-                run(cmd[6] as Commands)
+                run(cmd[5] as Commands)
             }
         }
     }
