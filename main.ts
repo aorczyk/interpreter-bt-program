@@ -267,10 +267,17 @@ function runCommand(cmd: Commands){
         })
     }
     else if (id == 8) {
-        if (testConditions(cmd[1] as Commands)) {
+        // Time trigger
+        if (!cmd[6]){
+            cmd[6] = input.runningTime()
+        }
+
+        if (testConditions(cmd[1] as Commands, cmd[6] as number)) {
             if (cmd[2] || !cmd[3] || cmd[3] == 2) {
                 cmd[3] = 1
                 run(cmd[4] as Commands)
+
+                cmd[6] = input.runningTime()
             }
         } else {
             if (cmd[2] || cmd[3]) {
