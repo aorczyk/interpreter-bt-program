@@ -81,9 +81,9 @@ function run(commands: Commands){
 
 pfTransmitter.connectIrSenderLed(AnalogPin.P0)
 
-function compare(a: number, t: number, b: number){
+function compare(a: number | null, t: number, b: number){
     t = t > 4 ? t - 4 : t;
-    return t == 1 ? a > b : t == 2 ? a < b : t == 3 ? a === b : t == 4 ? a !== b : false
+    return a == null ? true : t == 1 ? a > b : t == 2 ? a < b : t == 3 ? a === b : t == 4 ? a !== b : false
 }
 
 // --- Data handlers ---
@@ -180,7 +180,7 @@ function getData(id: number, p1?: number){
         return input.buttonIsPressed(Button.B) ? 1 : 0
     }
 
-    return 0
+    return null
 }
 
 function testConditions(conditions: Commands, p1?: number){
