@@ -288,16 +288,14 @@ function runCommand(cmd: Commands){
     }
     else if (id == 9) {
         let a = cmd[3] as number;
-        let n = cmd[1] as number;
-        if (cmd[2] == 1) {
-            variables[n] = a
-        } else if (cmd[2] == 2) {
-            variables[n] += a
-        } else if (cmd[2] == 3) {
-            variables[n] -= a
-        } else if (cmd[2] == 4) {
-            variables[n] = getData(a)
-        }
+        let n = cmd[1] as number
+        let v = variables[n]
+        variables[n] = cmd[2] == 1 ? a : 
+        cmd[2] == 2 ? v + a : 
+        cmd[2] == 3 ? v - a : 
+        cmd[2] == 4 ? getData(a) : 
+        cmd[2] == 5 ? v * a : 
+        cmd[2] == 6 ? v / a : 0
     }
     else if (id == 10) {
         if (cmd[1] == 1){
