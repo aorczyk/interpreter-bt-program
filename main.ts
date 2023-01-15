@@ -212,17 +212,13 @@ function runCommand(cmd: Commands){
         basic.clearScreen()
     } 
     else if (id == 1){
-        // let data = [input.runningTime()]
-        // for (let i = 1; i < cmd.length; i++){
-        //     data.push(getData(cmd[i] as number))
-        // }
-        // let data = cmd.map(x => getData(x as number))
-        // data.unshift(input.runningTime())
-        btSend(cmd.map(x => getData(x as number)).join(','))
+        let data = cmd.map(x => getData(x as number));
+        data.unshift(input.runningTime())
+        btSend(data.join(','))
     }
     else if (id == 2) {
-        // led.plot(cmd[1] as number, cmd[2] as number)
-        plot(cmd[2] as number, cmd[1] as number[])
+        led.plot(cmd[1] as number, cmd[2] as number)
+        // plot(cmd[2] as number, cmd[1] as number[])
     } 
     else if (id == 3) {
         led.unplot(cmd[1] as number, cmd[2] as number)
