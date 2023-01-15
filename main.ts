@@ -213,7 +213,7 @@ function runCommand(cmd: Commands){
     } 
     else if (id == 1){
         let data = cmd.map(x => getData(x as number));
-        data.unshift(input.runningTime())
+        data[0] = input.runningTime()
         btSend(data.join(','))
     }
     else if (id == 2) {
