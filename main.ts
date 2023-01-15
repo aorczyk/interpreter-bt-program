@@ -170,9 +170,9 @@ function getData(id: number, p1?: number){
     else if (id == -1) {
         return (input.runningTime() - p1) / 100
     }
-    else if (id == 17) {
-        return Math.abs(input.acceleration(Dimension.X)) > 400 || Math.abs(input.acceleration(Dimension.Y)) > 400 ? 1 : 0
-    }
+    // else if (id == 17) {
+    //     return Math.abs(input.acceleration(Dimension.X)) > 400 || Math.abs(input.acceleration(Dimension.Y)) > 400 ? 1 : 0
+    // }
     else if (id == 18) {
         return input.buttonIsPressed(Button.A) ? 1 : 0
     }
@@ -196,16 +196,12 @@ function testConditions(conditions: Commands, p1?: number){
     return test
 }
 
-function plot(points: number[], action: number){
-    for (let n of points) {
+function plot(action: number, points: number[]){
+    points.map(n => {
         let x = Math.trunc(n)
         let y = Math.trunc((n - x) * 10)
-        if (action){
-            led.plot(x, y)
-        } else {
-            led.unplot(x, y)
-        }
-    }
+        action ? led.plot(x, y) : led.unplot(x, y)
+    })
 }
 
 // --- Commands ---
@@ -216,19 +212,22 @@ function runCommand(cmd: Commands){
         basic.clearScreen()
     } 
     else if (id == 1){
-        let data = [input.runningTime()]
-        for (let i = 1; i < cmd.length; i++){
-            data.push(getData(cmd[i] as number))
-        }
-        btSend(data.join(','))
+        // let data = [input.runningTime()]
+        // for (let i = 1; i < cmd.length; i++){
+        //     data.push(getData(cmd[i] as number))
+        // }
+        // let data = cmd.map(x => getData(x as number))
+        // data.unshift(input.runningTime())
+        btSend(cmd.map(x => getData(x as number)).join(','))
     }
     else if (id == 2) {
-        led.plot(cmd[1] as number, cmd[2] as number)
-        // let p1 = cmd[1] as number[];
-        // plot(cmd[1] as number[], cmd[2] as number)
-    } else if (id == 3) {
+        // led.plot(cmd[1] as number, cmd[2] as number)
+        plot(cmd[2] as number, cmd[1] as number[])
+    } 
+    else if (id == 3) {
         led.unplot(cmd[1] as number, cmd[2] as number)
-    } else if (id == 4) {
+    } 
+    else if (id == 4) {
         pfTransmitter.singleOutputMode(cmd[1] as PfChannel, cmd[2] as PfOutput, cmd[3] as PfSingleOutput)
     }
     // Repeat Block
@@ -289,13 +288,18 @@ function runCommand(cmd: Commands){
     else if (id == 9) {
         let a = cmd[3] as number;
         let n = cmd[1] as number
+
         let v = variables[n]
         variables[n] = cmd[2] == 1 ? a : 
         cmd[2] == 2 ? v + a : 
         cmd[2] == 3 ? v - a : 
-        cmd[2] == 4 ? getData(a) : 
-        cmd[2] == 5 ? v * a : 
-        cmd[2] == 6 ? v / a : 0
+        cmd[2] == 4 ? getData(a) :
+        // cmd[2] == 5 ? v * a : 
+        // cmd[2] == 6 ? v / a :
+        // cmd[2] == 8 ? v - getData(a) :
+        // cmd[2] == 9 ? v + getData(a) :
+        0
+        // cmd[2] == 7 ? Math.abs(v) : 0
     }
     else if (id == 10) {
         if (cmd[1] == 1){
