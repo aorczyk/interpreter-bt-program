@@ -311,9 +311,9 @@ function runCommand(cmd: Commands){
     // else if (id == 11) {
     //     btSend(cmd[1] + ';')
     // }
-    // else if (id == 12) {
-    //     forceStop = true
-    // }
+    else if (id == 12) {
+        forceStop = true
+    }
     // else if (id == 13) {
     //     control.reset()
     // }
