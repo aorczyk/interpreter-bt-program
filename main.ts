@@ -196,13 +196,13 @@ function testConditions(conditions: Commands, p1?: number){
     return test
 }
 
-// function plot(action: number, points: number[]){
-//     points.map(n => {
-//         let x = Math.trunc(n)
-//         let y = Math.trunc((n - x) * 10)
-//         action ? led.plot(x, y) : led.unplot(x, y)
-//     })
-// }
+function plot(action: number, points: number[]){
+    points.map(n => {
+        let x = Math.trunc(n)
+        let y = Math.trunc((n - x) * 10)
+        action ? led.plot(x, y) : led.unplot(x, y)
+    })
+}
 
 // --- Commands ---
 function runCommand(cmd: Commands){
@@ -218,14 +218,7 @@ function runCommand(cmd: Commands){
     }
     else if (id == 2) {
         // led.plot(cmd[1] as number, cmd[2] as number)
-        // plot(cmd[2] as number, cmd[1] as number[])
-        let points = cmd[1] as number[];
-        let action = cmd[2] as number;
-        points.map(n => {
-            let x = Math.trunc(n)
-            let y = Math.trunc((n - x) * 10)
-            action ? led.plot(x, y) : led.unplot(x, y)
-        })
+        plot(cmd[2] as number, cmd[1] as number[])
     } 
     else if (id == 3) {
         // led.unplot(cmd[1] as number, cmd[2] as number)
