@@ -224,7 +224,7 @@ function runCommand(cmd: Commands){
         // led.unplot(cmd[1] as number, cmd[2] as number)
     } 
     else if (id == 4) {
-        pfTransmitter.singleOutputMode(cmd[1] as PfChannel, cmd[2] as PfOutput, cmd[3] as PfSingleOutput)
+        pfTransmitter.singleOutputMode(cmd[1] as number, cmd[2] as number, cmd[3] as number)
     }
     // Repeat Block
     // Use this block to repeat actions.
@@ -352,94 +352,94 @@ function runCommand(cmd: Commands){
  * (c) 2021, Adam Orczyk
  */
 
-const enum PfChannel {
-    //% block="1"
-    Channel1 = 0,
-    //% block="2"
-    Channel2 = 1,
-    //% block="3"
-    Channel3 = 2,
-    //% block="4"
-    Channel4 = 3,
-}
+// const enum PfChannel {
+//     //% block="1"
+//     Channel1 = 0,
+//     //% block="2"
+//     Channel2 = 1,
+//     //% block="3"
+//     Channel3 = 2,
+//     //% block="4"
+//     Channel4 = 3,
+// }
 
-const enum PfOutput {
-    Red = 0,
-    Blue = 1
-}
+// const enum PfOutput {
+//     Red = 0,
+//     Blue = 1
+// }
 
-const enum PfSingleOutput {
-    //% block="Float"
-    Float = 0b1000000,
-    //% block="Forward step 1"
-    Forward1 = 0b1000001,
-    //% block="Forward step 2"
-    Forward2 = 0b1000010,
-    //% block="Forward step 3"
-    Forward3 = 0b1000011,
-    //% block="Forward step 4"
-    Forward4 = 0b1000100,
-    //% block="Forward step 5"
-    Forward5 = 0b1000101,
-    //% block="Forward step 6"
-    Forward6 = 0b1000110,
-    //% block="Forward step 7"
-    Forward7 = 0b1000111,
-    //% block="Brake then float"
-    BrakeThenFloat = 0b1001000,
-    //% block="Backward step 7"
-    Backward7 = 0b1001001,
-    //% block="Backward step 6"
-    Backward6 = 0b1001010,
-    //% block="Backward step 5"
-    Backward5 = 0b1001011,
-    //% block="Backward step 4"
-    Backward4 = 0b1001100,
-    //% block="Backward step 3"
-    Backward3 = 0b1001101,
-    //% block="Backward step 2"
-    Backward2 = 0b1001110,
-    //% block="Backward step 1"
-    Backward1 = 0b1001111,
+// const enum PfSingleOutput {
+//     //% block="Float"
+//     Float = 0b1000000,
+//     //% block="Forward step 1"
+//     Forward1 = 0b1000001,
+//     //% block="Forward step 2"
+//     Forward2 = 0b1000010,
+//     //% block="Forward step 3"
+//     Forward3 = 0b1000011,
+//     //% block="Forward step 4"
+//     Forward4 = 0b1000100,
+//     //% block="Forward step 5"
+//     Forward5 = 0b1000101,
+//     //% block="Forward step 6"
+//     Forward6 = 0b1000110,
+//     //% block="Forward step 7"
+//     Forward7 = 0b1000111,
+//     //% block="Brake then float"
+//     BrakeThenFloat = 0b1001000,
+//     //% block="Backward step 7"
+//     Backward7 = 0b1001001,
+//     //% block="Backward step 6"
+//     Backward6 = 0b1001010,
+//     //% block="Backward step 5"
+//     Backward5 = 0b1001011,
+//     //% block="Backward step 4"
+//     Backward4 = 0b1001100,
+//     //% block="Backward step 3"
+//     Backward3 = 0b1001101,
+//     //% block="Backward step 2"
+//     Backward2 = 0b1001110,
+//     //% block="Backward step 1"
+//     Backward1 = 0b1001111,
 
-    //% block="Increment"
-    IncrementPWM = 0b1100100,
-    //% block="Decrement"
-    DecrementPWM = 0b1100101,
-    //% block="Full forward"
-    FullForward = 0b1100110,
-    //% block="Full backward"
-    FullBackward = 0b1100111,
+//     //% block="Increment"
+//     IncrementPWM = 0b1100100,
+//     //% block="Decrement"
+//     DecrementPWM = 0b1100101,
+//     //% block="Full forward"
+//     FullForward = 0b1100110,
+//     //% block="Full backward"
+//     FullBackward = 0b1100111,
 
-    //% block="Toggle full forward/backward (default forward)"
-    ToggleFullForwardBackward = 0b1101000,
+//     //% block="Toggle full forward/backward (default forward)"
+//     ToggleFullForwardBackward = 0b1101000,
 
-    //% block="Toggle full forward (Stop → Fw, Fw → Stop, Bw → Fw)"
-    ToggleFullForward = 0b1100000,
-    //% block="Toggle full backward (Stop → Bw, Bw → Stop, Fwd → Bw)"
-    ToggleFullBackward = 0b1101111,
+//     //% block="Toggle full forward (Stop → Fw, Fw → Stop, Bw → Fw)"
+//     ToggleFullForward = 0b1100000,
+//     //% block="Toggle full backward (Stop → Bw, Bw → Stop, Fwd → Bw)"
+//     ToggleFullBackward = 0b1101111,
 
-    //% block="Toggle direction"
-    ToggleDirection = 0b1100001,
-    //% block="Increment Numerical PWM"
-    IncrementNumericalPWM = 0b1100010,
-    //% block="Decrement Numerical PWM"
-    DecrementNumericalPWM = 0b1100011,
+//     //% block="Toggle direction"
+//     ToggleDirection = 0b1100001,
+//     //% block="Increment Numerical PWM"
+//     IncrementNumericalPWM = 0b1100010,
+//     //% block="Decrement Numerical PWM"
+//     DecrementNumericalPWM = 0b1100011,
 
-    //% block="Clear C1 (negative logic – C1 high)"
-    ClearC1 = 0b1101001,
-    //% block="Set C1 (negative logic – C1 low)"
-    SetC1 = 0b1101010,
-    //% block="Toggle C1"
-    ToggleC1 = 0b1101011,
+//     //% block="Clear C1 (negative logic – C1 high)"
+//     ClearC1 = 0b1101001,
+//     //% block="Set C1 (negative logic – C1 low)"
+//     SetC1 = 0b1101010,
+//     //% block="Toggle C1"
+//     ToggleC1 = 0b1101011,
 
-    //% block="Clear C2 (negative logic – C2 high)"
-    ClearC2 = 0b1101100,
-    //% block="Set C2 (negative logic – C2 low)"
-    SetC2 = 0b1101101,
-    //% block="Toggle C2"
-    ToggleC2 = 0b1101110,
-}
+//     //% block="Clear C2 (negative logic – C2 high)"
+//     ClearC2 = 0b1101100,
+//     //% block="Set C2 (negative logic – C2 low)"
+//     SetC2 = 0b1101101,
+//     //% block="Toggle C2"
+//     ToggleC2 = 0b1101110,
+// }
 
 //% color=#f68420 icon="\uf1eb" block="PF Transmitter"
 namespace pfTransmitter {
@@ -642,7 +642,7 @@ namespace pfTransmitter {
     //% blockId="pf_transmitter_single_output_mode"
     //% block="set speed : channel %channel output %output command %command"
     //% weight=80
-    export function singleOutputMode(channel: PfChannel, output: PfOutput, command: PfSingleOutput) {
+    export function singleOutputMode(channel: number, output: number, command: number) {
         let mixDatagrams = true;
 
         // Because: Toggle bit is verified on receiver if increment/decrement/toggle command is received.
