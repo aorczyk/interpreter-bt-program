@@ -146,15 +146,25 @@ function getData(id: number, p1?: number){
                             wasNoise = true
                             counter += 1;
                             lastClaps = input.runningTime()
+                            // Last claps nr is available for given time.
+                            clapsNr = 0;
                         }
                     } else {
                         wasNoise = false
                     }
 
-                    if ((input.runningTime() - lastClaps) > 1000){
+                    let silentTime = input.runningTime() - lastClaps;
+
+                    if (silentTime > 1000){
                         clapsNr = counter;
                         counter = 0;
                     }
+
+                    // Last claps nr is available for given time.
+                    // if (silentTime > 1200) {
+                    //     clapsNr = null;
+                    // }
+
                     basic.pause(20)
                 }
 
@@ -201,6 +211,7 @@ function plot(action: number, points: number[]){
         let x = Math.trunc(n)
         let y = Math.trunc((n - x) * 10)
         action ? led.plot(x, y) : led.unplot(x, y)
+        // btSend(x + ' ' + y)
     })
 }
 
@@ -216,13 +227,13 @@ function runCommand(cmd: Commands){
         data[0] = input.runningTime()
         btSend(data.join(','))
     }
-    else if (id == 2) {
+    else if (id == 102) {
         // led.plot(cmd[1] as number, cmd[2] as number)
-        plot(cmd[2] as number, cmd[1] as number[])
+        plot(cmd[1] as number, cmd[2] as number[])
     } 
-    else if (id == 3) {
-        // led.unplot(cmd[1] as number, cmd[2] as number)
-    } 
+    // else if (id == 3) {
+    //     // led.unplot(cmd[1] as number, cmd[2] as number)
+    // } 
     else if (id == 4) {
         pfTransmitter.singleOutputMode(cmd[1] as number, cmd[2] as number, cmd[3] as number)
     }
