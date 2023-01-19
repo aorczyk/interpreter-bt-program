@@ -209,7 +209,7 @@ function testConditions(conditions: Commands, p1?: number){
 function plot(action: number, points: number[]){
     points.map(n => {
         let x = Math.trunc(n)
-        let y = Math.trunc((n - x) * 10)
+        let y = Math.trunc(Math.ceil((n - x) * 10))
         action ? led.plot(x, y) : led.unplot(x, y)
         // btSend(x + ' ' + y)
     })
