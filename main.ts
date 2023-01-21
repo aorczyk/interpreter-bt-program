@@ -132,7 +132,7 @@ function getData(id: number, p1?: number){
     }
     else if (id == 15) {
         if (clapsNr === null){
-            clapsNr = 0
+            // clapsNr = 0
             let lastClaps: number = 0;
             let wasNoise: boolean = false;
             let counter: number = 0;
