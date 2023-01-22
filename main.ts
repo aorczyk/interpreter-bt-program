@@ -17,9 +17,9 @@ bluetooth.startUartService()
 
 led.plot(0, 0)
 
-// bluetooth.onBluetoothConnected(function () {
-//     led.plot(1, 0)
-// })
+bluetooth.onBluetoothConnected(function () {
+    led.plot(1, 0)
+})
 
 bluetooth.onBluetoothDisconnected(function () {
     basic.clearScreen()
@@ -319,7 +319,9 @@ function runCommand(cmd: Commands){
         // }
     }
     // else if (id == 11) {
-    //     btSend(cmd[1] + ';')
+    //     // btSend(cmd[1] + ';')
+    //     // basic.showString(getData(cmd[1] as number) + '')
+    //     // basic.showString(cmd[1] + '')
     // }
     else if (id == 12) {
         forceStop = true
