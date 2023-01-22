@@ -17,9 +17,9 @@ bluetooth.startUartService()
 
 led.plot(0, 0)
 
-bluetooth.onBluetoothConnected(function () {
-    led.plot(1, 0)
-})
+// bluetooth.onBluetoothConnected(function () {
+//     led.plot(1, 0)
+// })
 
 bluetooth.onBluetoothDisconnected(function () {
     basic.clearScreen()
@@ -132,20 +132,17 @@ function getData(id: number, p1?: number){
     }
     else if (id == 15) {
         if (clapsNr === null){
-            // clapsNr = 0
-            let lastClaps: number = 0;
+            let lastClap: number = 0;
             let wasNoise: boolean = false;
             let counter: number = 0;
 
             control.runInBackground(() => {
                 while (!forceStop) {
-                    let sound = input.soundLevel()
-                    // let sound = input.lightLevel()
-                    if (sound > 100){
+                    if (input.soundLevel() > 50){
                         if (!wasNoise) {
                             wasNoise = true
                             counter += 1;
-                            lastClaps = input.runningTime()
+                            lastClap = input.runningTime()
                             // Last claps nr is available for given time.
                             clapsNr = 0;
                         }
@@ -153,17 +150,10 @@ function getData(id: number, p1?: number){
                         wasNoise = false
                     }
 
-                    let silentTime = input.runningTime() - lastClaps;
-
-                    if (silentTime > 1000){
+                    if ((input.runningTime() - lastClap) > 1000 && counter){
                         clapsNr = counter;
                         counter = 0;
                     }
-
-                    // Last claps nr is available for given time.
-                    // if (silentTime > 1200) {
-                    //     clapsNr = null;
-                    // }
 
                     basic.pause(20)
                 }
