@@ -17,9 +17,9 @@ bluetooth.startUartService()
 
 led.plot(0, 0)
 
-bluetooth.onBluetoothConnected(function () {
-    led.plot(1, 0)
-})
+// bluetooth.onBluetoothConnected(function () {
+//     led.plot(1, 0)
+// })
 
 bluetooth.onBluetoothDisconnected(function () {
     basic.clearScreen()
