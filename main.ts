@@ -132,27 +132,32 @@ function getData(id: number, p1?: number){
     }
     else if (id == 15) {
         if (clapsNr === null){
-            let lastClap: number = 0;
-            let wasNoise: boolean = false;
-            let counter: number = 0;
+            clapsNr = 0;
 
             control.runInBackground(() => {
+                let triggerTime = 0;
+                let noise = false;
+                let counter = 0;
+
                 while (!forceStop) {
-                    if (input.soundLevel() > 50){
-                        if (!wasNoise) {
-                            wasNoise = true
+                    if (input.soundLevel() > 50) {
+                        noise = true
+                        triggerTime = 0
+                    } else {
+                        if (noise) {
+                            noise = false
                             counter += 1;
-                            lastClap = input.runningTime()
                             // Last claps nr is available for given time.
                             clapsNr = 0;
+                            // Waiting 1s before set claps counter.
+                            triggerTime = input.runningTime() + 1000
                         }
-                    } else {
-                        wasNoise = false
                     }
 
-                    if ((input.runningTime() - lastClap) > 1000 && counter){
+                    if (triggerTime && (input.runningTime() > triggerTime)){
                         clapsNr = counter;
                         counter = 0;
+                        triggerTime = 0;
                     }
 
                     basic.pause(20)
