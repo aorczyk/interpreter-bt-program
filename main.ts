@@ -140,7 +140,7 @@ function getData(id: number, p1?: number){
                 let counter = 0;
 
                 while (!forceStop) {
-                    if (input.soundLevel() > 50) {
+                    if (input.soundLevel() > 100) {
                         noise = true
                         triggerTime = 0
                     } else {
