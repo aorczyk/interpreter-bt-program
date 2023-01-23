@@ -12,6 +12,7 @@ let threadsNr = 0;
 let keyCode: number = null;
 let lastKeyCode: number = null;
 let clapsNr: number = null;
+let clapSound = 100;
 
 bluetooth.startUartService()
 
@@ -140,7 +141,7 @@ function getData(id: number, p1?: number){
                 let counter = 0;
 
                 while (!forceStop) {
-                    if (input.soundLevel() > 100) {
+                    if (input.soundLevel() > clapSound) {
                         noise = true
                         triggerTime = 0
                     } else {
@@ -312,6 +313,9 @@ function runCommand(cmd: Commands){
         // else if (cmd[1] == 3) {
         //     pins.setAudioPin(AnalogPin.P2)
         // }
+        else if (cmd[1] == 4) {
+            clapSound = cmd[2] as number
+        }
     }
     // else if (id == 11) {
     //     // btSend(cmd[1] + ';')
