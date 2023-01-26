@@ -95,14 +95,8 @@ function getData(id: number, p1?: number){
     else if (id == 2){
         return input.soundLevel()
     }
-    else if (id == 3) {
-        return input.acceleration(Dimension.X)
-    }
-    else if (id == 4) {
-        return input.acceleration(Dimension.Y)
-    }
-    else if (id == 5) {
-        return input.acceleration(Dimension.Z)
+    else if (id >= 3 && id <= 5) {
+        return input.acceleration(id - 3)
     }
     else if (id == 6) {
         return input.compassHeading()
