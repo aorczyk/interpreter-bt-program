@@ -80,7 +80,7 @@ function run(commands: Commands){
     }
 }
 
-pfTransmitter.connectIrSenderLed(AnalogPin.P0)
+pfTransmitter.connectIrSenderLed(100) // AnalogPin.P0
 
 function compare(a: number | null, t: number, b: number){
     t = t > 4 ? t - 4 : t;
@@ -114,10 +114,10 @@ function getData(id: number, p1?: number){
         return variables[2]
     }
     else if (id == 11) {
-        return pins.digitalReadPin(DigitalPin.P1);
+        return pins.digitalReadPin(101); // DigitalPin.P1
     }
     else if (id == 12) {
-        return sonar.ping(DigitalPin.P1, DigitalPin.P2, PingUnit.Centimeters)
+        return sonar.ping(101, 102, PingUnit.Centimeters)
     }
     else if (id == 13) {
         return keyCode
@@ -165,7 +165,7 @@ function getData(id: number, p1?: number){
         return clapsNr
     }
     else if (id == 16) {
-        return pins.analogReadPin(AnalogPin.P1);
+        return pins.analogReadPin(101); // AnalogPin.P1
     }
     else if (id == -1) {
         return (input.runningTime() - p1) / 100
@@ -299,13 +299,13 @@ function runCommand(cmd: Commands){
     }
     else if (id == 10) {
         if (cmd[1] == 1){
-            pins.setPull(DigitalPin.P1, PinPullMode.PullUp)
+            pins.setPull(101, 1) // PinPullMode.PullUp
         } 
         else if (cmd[1] == 2) {
-            pins.setPull(DigitalPin.P1, PinPullMode.PullDown)
+            pins.setPull(101, 0)
         }
         // else if (cmd[1] == 3) {
-        //     pins.setAudioPin(AnalogPin.P2)
+        //     pins.setAudioPin(102)
         // }
         else if (cmd[1] == 4) {
             clapSound = cmd[2] as number
