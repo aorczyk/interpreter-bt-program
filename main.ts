@@ -179,9 +179,6 @@ function getData(id: number, p1?: number, p2?: number){
     else if (id == 19) {
         return input.buttonIsPressed(Button.B) ? 1 : 0
     }
-    else if (id == 20) {
-        return p2
-    }
 
     return null
 }
@@ -191,7 +188,8 @@ function testConditions(conditions: Commands, p1?: number, p2?: number){
     let op = null;
 
     for (let c of conditions as number[][]) {
-        let out = compare(getData(c[0], p1, p2), c[1], c[1] < 5 ? c[2] : getData(c[2], p1))
+        let data = c[0] == 20 ? p2 : getData(c[0], p1)
+        let out = compare(data, c[1], c[1] < 5 ? c[2] : getData(c[2], p1))
         test = op == null ? out : op == 0 ? test && out : test || out;
         op = c[3]
     }
