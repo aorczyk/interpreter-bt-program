@@ -88,7 +88,7 @@ function compare(a: number | null, t: number, b: number){
 }
 
 // --- Data handlers ---
-function getData(id: number, p1?: number){
+function getData(id: number, p1?: number, p2?: number){
     if (id == 1){
         return input.lightLevel()
     }
@@ -179,16 +179,19 @@ function getData(id: number, p1?: number){
     else if (id == 19) {
         return input.buttonIsPressed(Button.B) ? 1 : 0
     }
+    else if (id == 20) {
+        return p2
+    }
 
     return null
 }
 
-function testConditions(conditions: Commands, p1?: number){
+function testConditions(conditions: Commands, p1?: number, p2?: number){
     let test = true;
     let op = null;
 
     for (let c of conditions as number[][]) {
-        let out = compare(getData(c[0], p1), c[1], c[1] < 5 ? c[2] : getData(c[2], p1))
+        let out = compare(getData(c[0], p1, p2), c[1], c[1] < 5 ? c[2] : getData(c[2], p1))
         test = op == null ? out : op == 0 ? test && out : test || out;
         op = c[3]
     }
@@ -242,10 +245,12 @@ function runCommand(cmd: Commands){
     // work properly.
 
     else if (id == 5 || id == 6 || id == 16) {
-        let startWait = input.runningTime();
-        
+        let c = cmd[1] as Commands;
+        let p1 = input.runningTime();
+        let p2 = 0;
+
         while (!forceStop) {
-            if (!testConditions(cmd[1] as Commands, startWait)){
+            if (!testConditions(c, p1, p2)){
                 break;
             }
 
@@ -253,6 +258,7 @@ function runCommand(cmd: Commands){
                 run(cmd[2] as Commands)
             }
 
+            p2 += 1
             basic.pause(20)
         }
     }
