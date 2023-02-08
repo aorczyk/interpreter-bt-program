@@ -16,7 +16,7 @@ let clapSound = 100;
 
 bluetooth.startUartService()
 
-led.plot(0, 0)
+led.plot(2, 0)
 
 // bluetooth.onBluetoothConnected(function () {
 //     led.plot(1, 0)
@@ -24,7 +24,7 @@ led.plot(0, 0)
 
 bluetooth.onBluetoothDisconnected(function () {
     basic.clearScreen()
-    led.plot(0, 0)
+    led.plot(2, 2)
 })
 
 function btSend(str: string | number) {
@@ -51,7 +51,7 @@ function messageHandler(receivedString: string) {
     } else if (data[0] == '>'){
         receivingCommand = false
         commands = JSON.parse(commandsString)
-        // led.plot(4, 0)
+        basic.clearScreen()
         btSend('1')
     } else if (receivingCommand) {
         commandsString += data[0]
@@ -348,6 +348,9 @@ function runCommand(cmd: Commands){
     //     music.playTone(cmd[1] as number, music.beat())
     //     basic.pause(cmd[2] as number * 100)
     // }
+    else if (id == 16) {
+        pins.analogWritePin(cmd[1] as number, cmd[2] as number)
+    }
 }
 
 // --- Power Functions Transmitter - SingleOutput ---
