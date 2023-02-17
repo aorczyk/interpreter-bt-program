@@ -22,10 +22,10 @@ led.plot(2, 0)
 //     led.plot(1, 0)
 // })
 
-bluetooth.onBluetoothDisconnected(function () {
-    basic.clearScreen()
-    led.plot(2, 2)
-})
+// bluetooth.onBluetoothDisconnected(function () {
+//     basic.clearScreen()
+//     led.plot(2, 0)
+// })
 
 function btSend(str: string | number) {
     bluetooth.uartWriteString(str + '\n')
@@ -44,7 +44,6 @@ function messageHandler(receivedString: string) {
         forceStop = true;
     } else if (data[0] == '<'){
         receivingCommand = true
-        basic.clearScreen()
         commandsString = ''
         commands = []
         return
@@ -178,6 +177,15 @@ function getData(id: number, p1?: number, p2?: number){
     }
     else if (id == 19) {
         return input.buttonIsPressed(Button.B) ? 1 : 0
+    }
+    else if (id == 21) {
+        return input.magneticForce(0)
+    }
+    else if (id == 22) {
+        return input.magneticForce(1)
+    }
+    else if (id == 23) {
+        return input.magneticForce(2)
     }
 
     return null
