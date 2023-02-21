@@ -116,7 +116,7 @@ function getData(id: number, p1?: number, p2?: number){
         return pins.digitalReadPin(101); // DigitalPin.P1
     }
     else if (id == 12) {
-        return sonar.ping(101, 102, PingUnit.Centimeters)
+        return sonar.ping(101, 102, 1)
     }
     else if (id == 13) {
         return keyCode
@@ -173,10 +173,10 @@ function getData(id: number, p1?: number, p2?: number){
     //     return Math.abs(input.acceleration(Dimension.X)) > 400 || Math.abs(input.acceleration(Dimension.Y)) > 400 ? 1 : 0
     // }
     else if (id == 18) {
-        return input.buttonIsPressed(Button.A) ? 1 : 0
+        return + input.buttonIsPressed(Button.A)
     }
     else if (id == 19) {
-        return input.buttonIsPressed(Button.B) ? 1 : 0
+        return + input.buttonIsPressed(Button.B)
     }
     else if (id == 21) {
         return input.magneticForce(0)
@@ -187,6 +187,12 @@ function getData(id: number, p1?: number, p2?: number){
     else if (id == 23) {
         return input.magneticForce(2)
     }
+    else if (id == 24) {
+        return Math.randomRange(1,6)
+    }
+    // else if (id == 25) {
+    //     return +input.isGesture(11)
+    // }
 
     return null
 }
@@ -302,12 +308,12 @@ function runCommand(cmd: Commands){
         cmd[2] == 2 ? v + a : 
         cmd[2] == 3 ? v - a : 
         cmd[2] == 4 ? getData(a) :
-        // cmd[2] == 5 ? v * a : 
+        // cmd[2] == 5 ? v * a :
         // cmd[2] == 6 ? v / a :
         // cmd[2] == 8 ? v - getData(a) :
         // cmd[2] == 9 ? v + getData(a) :
+        // cmd[2] == 7 ? Math.abs(v) :
         0
-        // cmd[2] == 7 ? Math.abs(v) : 0
     }
     else if (id == 10) {
         if (cmd[1] == 1){
