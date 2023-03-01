@@ -16,7 +16,7 @@ let clapSound = 100;
 
 bluetooth.startUartService()
 
-led.plot(2, 0)
+// led.plot(2, 0)
 
 // bluetooth.onBluetoothConnected(function () {
 //     led.plot(1, 0)
@@ -232,12 +232,8 @@ function runCommand(cmd: Commands){
         btSend(data.join(','))
     }
     else if (id == 102) {
-        // led.plot(cmd[1] as number, cmd[2] as number)
         plot(cmd[1] as number, cmd[2] as number[])
     } 
-    // else if (id == 3) {
-    //     // led.unplot(cmd[1] as number, cmd[2] as number)
-    // } 
     else if (id == 4) {
         pfTransmitter.singleOutputMode(cmd[1] as number, cmd[2] as number, cmd[3] as number)
     }
@@ -330,9 +326,7 @@ function runCommand(cmd: Commands){
         }
     }
     // else if (id == 11) {
-    //     // btSend(cmd[1] + ';')
-    //     // basic.showString(getData(cmd[1] as number) + '')
-    //     // basic.showString(cmd[1] + '')
+    //     btSend(cmd[1] + ';')
     // }
     else if (id == 12) {
         forceStop = true
@@ -341,13 +335,12 @@ function runCommand(cmd: Commands){
     //     control.reset()
     // }
     else if (id == 14) {
-        let p1 = cmd[1] as number;
         let trigger = true;
         control.runInBackground(() => {
             while (!forceStop) {
-                if (keyCode == p1) {
+                if ((cmd[1] ? lastKeyCode : keyCode) == cmd[2] as number) {
                     if (trigger){
-                        run(cmd[2] as Commands)
+                        run(cmd[3] as Commands)
                         trigger = false;
                     }
                 } else {
@@ -642,7 +635,7 @@ namespace pfTransmitter {
     //% pin.fieldOptions.columns=4
     //% pin.fieldOptions.tooltips="false"
     //% weight=90
-    export function connectIrSenderLed(pin: AnalogPin, debug: boolean = false): void {
+    export function connectIrSenderLed(pin: AnalogPin): void {
         toggleByChannel = [1, 1, 1, 1];
         schedulerIsWorking = false;
         tasks = [];
@@ -654,7 +647,6 @@ namespace pfTransmitter {
         }
 
         irLed = new InfraredLed(pin);
-        irLed.debug = debug
     }
 
     /**
