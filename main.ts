@@ -16,7 +16,7 @@ let clapSound = 100;
 
 bluetooth.startUartService()
 
-// led.plot(2, 0)
+led.plot(2, 0)
 
 // bluetooth.onBluetoothConnected(function () {
 //     led.plot(1, 0)
@@ -305,7 +305,7 @@ function runCommand(cmd: Commands){
         cmd[2] == 3 ? v - a : 
         cmd[2] == 4 ? getData(a) :
         cmd[2] == 5 ? v * a :
-        // cmd[2] == 6 ? v / a :
+        cmd[2] == 6 ? v / a :
         // cmd[2] == 8 ? v - getData(a) :
         // cmd[2] == 9 ? v + getData(a) :
         // cmd[2] == 7 ? Math.abs(v) :
@@ -480,7 +480,6 @@ namespace pfTransmitter {
     class InfraredLed {
         private pin: AnalogPin;
         private waitCorrection: number;
-        public debug: boolean = false;
 
         constructor(pin: AnalogPin) {
             this.pin = pin;
@@ -532,10 +531,6 @@ namespace pfTransmitter {
             for (let i = 15; i >= 0; i--) {
                 let bit = (datagram & (1 << i)) === 0 ? 0 : 1;
 
-                if (this.debug) {
-                    bits += (i > 0 && i % 4 == 0) ? bit + '-' : bit;
-                }
-
                 if (bit == 0) {
                     this.transmitBit(PF_MARK_BIT, PF_LOW_BIT);
                 } else if (bit == 1) {
@@ -544,10 +539,6 @@ namespace pfTransmitter {
             }
 
             this.transmitBit(PF_MARK_BIT, PF_START_BIT);
-
-            if (this.debug) {
-                serial.writeString(bits + ` = ${lastCommand}\n`)
-            }
         }
     }
 
