@@ -135,8 +135,10 @@ function getData(id: number, p1?: number, p2?: number){
 
                 while (!forceStop) {
                     if (input.soundLevel() > clapSound) {
-                        noise = input.runningTime()
-                        triggerTime = 0
+                        if (!noise){
+                            noise = input.runningTime()
+                            triggerTime = 0
+                        }
                     } else {
                         // The duration of the clap is short.
                         if (input.runningTime() - noise < 300) {
