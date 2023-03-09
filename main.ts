@@ -12,7 +12,6 @@ let threadsNr = 0;
 let keyCode: number = null;
 let lastKeyCode: number = null;
 let clapsNr: number = null;
-let clapSound = 100;
 
 bluetooth.startUartService()
 
@@ -127,25 +126,27 @@ function getData(id: number, p1?: number, p2?: number){
     else if (id == 15) {
         if (clapsNr === null){
             clapsNr = 0;
+            let clapSound = input.soundLevel() + 50;
 
             control.runInBackground(() => {
                 let triggerTime = 0;
-                let noise = false;
+                let noise = 0;
                 let counter = 0;
 
                 while (!forceStop) {
                     if (input.soundLevel() > clapSound) {
-                        noise = true
+                        noise = input.runningTime()
                         triggerTime = 0
                     } else {
-                        if (noise) {
-                            noise = false
+                        // The duration of the clap is short.
+                        if (input.runningTime() - noise < 300) {
                             counter += 1;
                             // Last claps nr is available for given time.
                             clapsNr = 0;
                             // Waiting 1s before set claps counter.
                             triggerTime = input.runningTime() + 1000
                         }
+                        noise = 0
                     }
 
                     if (triggerTime && (input.runningTime() > triggerTime)){
@@ -321,9 +322,6 @@ function runCommand(cmd: Commands){
         // else if (cmd[1] == 3) {
         //     pins.setAudioPin(102)
         // }
-        else if (cmd[1] == 4) {
-            clapSound = cmd[2] as number
-        }
     }
     // else if (id == 11) {
     //     btSend(cmd[1] + ';')
