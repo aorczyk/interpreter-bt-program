@@ -141,7 +141,7 @@ function getData(id: number, p1?: number, p2?: number){
                         }
                     } else {
                         // The duration of the clap is short.
-                        if (input.runningTime() - noise < 300) {
+                        if (noise && input.runningTime() - noise < 300) {
                             counter += 1;
                             // Last claps nr is available for given time.
                             clapsNr = 0;
@@ -324,6 +324,9 @@ function runCommand(cmd: Commands){
         // else if (cmd[1] == 3) {
         //     pins.setAudioPin(102)
         // }
+        else if (cmd[1] == 4) {
+            input.calibrateCompass()
+        }
     }
     // else if (id == 11) {
     //     btSend(cmd[1] + ';')
