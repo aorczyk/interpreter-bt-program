@@ -160,7 +160,7 @@ function getData(id: number, p1?: number, p2?: number){
                         zeroCounter = input.runningTime();
                     }
 
-                    if (!counter && input.runningTime() - zeroCounter > 3000){
+                    if (!counter && input.runningTime() - zeroCounter > 2000){
                         zeroCounter = input.runningTime();
                         clapSound = input.soundLevel() + 50;
                     }
