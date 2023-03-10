@@ -126,12 +126,13 @@ function getData(id: number, p1?: number, p2?: number){
     else if (id == 15) {
         if (clapsNr === null){
             clapsNr = 0;
-            let clapSound = input.soundLevel() + 50;
 
             control.runInBackground(() => {
                 let triggerTime = 0;
                 let noise = 0;
                 let counter = 0;
+                let clapSound = input.soundLevel() + 50;
+                let zeroCounter = input.runningTime();
 
                 while (!forceStop) {
                     if (input.soundLevel() > clapSound) {
@@ -141,7 +142,7 @@ function getData(id: number, p1?: number, p2?: number){
                         }
                     } else {
                         // The duration of the clap is short.
-                        if (noise && input.runningTime() - noise < 300) {
+                        if (input.runningTime() - noise < 300) {
                             counter += 1;
                             // Last claps nr is available for given time.
                             clapsNr = 0;
@@ -155,6 +156,12 @@ function getData(id: number, p1?: number, p2?: number){
                         clapsNr = counter;
                         counter = 0;
                         triggerTime = 0;
+                        zeroCounter = input.runningTime();
+                    }
+
+                    if (!counter && input.runningTime() - zeroCounter > 3000){
+                        zeroCounter = input.runningTime();
+                        clapSound = input.soundLevel() + 50;
                     }
 
                     basic.pause(20)
