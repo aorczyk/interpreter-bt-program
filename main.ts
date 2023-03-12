@@ -12,6 +12,7 @@ let threadsNr = 0;
 let keyCode: number = null;
 let lastKeyCode: number = null;
 let clapsNr: number = null;
+let clapSound: number = null;
 
 bluetooth.startUartService()
 
@@ -126,20 +127,18 @@ function getData(id: number, p1?: number, p2?: number){
     else if (id == 15) {
         if (clapsNr === null){
             clapsNr = 0;
+            clapSound = input.soundLevel() + 50;
 
             control.runInBackground(() => {
                 let triggerTime = 0;
                 let noise = 0;
                 let counter = 0;
-                let clapSound = input.soundLevel() + 50;
-                let zeroCounter = input.runningTime();
 
                 while (!forceStop) {
                     if (input.soundLevel() > clapSound) {
                         if (!noise){
                             noise = input.runningTime()
                             triggerTime = 0
-                            zeroCounter = noise;
                         }
                     } else {
                         // The duration of the clap is short.
@@ -157,12 +156,6 @@ function getData(id: number, p1?: number, p2?: number){
                         clapsNr = counter;
                         counter = 0;
                         triggerTime = 0;
-                        zeroCounter = input.runningTime();
-                    }
-
-                    if (!counter && input.runningTime() - zeroCounter > 2000){
-                        zeroCounter = input.runningTime();
-                        clapSound = input.soundLevel() + 50;
                     }
 
                     basic.pause(20)
@@ -334,6 +327,9 @@ function runCommand(cmd: Commands){
         // }
         else if (cmd[1] == 4) {
             input.calibrateCompass()
+        }
+        else if (cmd[1] == 5) {
+            clapSound = input.soundLevel() + 50;
         }
     }
     // else if (id == 11) {
