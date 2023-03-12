@@ -362,9 +362,9 @@ function runCommand(cmd: Commands){
     //     music.playTone(cmd[1] as number, music.beat())
     //     basic.pause(cmd[2] as number * 100)
     // }
-    // else if (id == 16) {
-    //     pins.analogWritePin(cmd[1] as number, cmd[2] as number)
-    // }
+    else if (id == 16) {
+        pins.analogWritePin(cmd[1] as number, cmd[2] as number)
+    }
 }
 
 // --- Power Functions Transmitter - SingleOutput ---
