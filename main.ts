@@ -9,8 +9,8 @@ let receivingCommand = false;
 let forceStop = false;
 let variables: number[] = [0,0,0]
 let threadsNr = 0;
-let keyCode: number = null;
-let lastKeyCode: number = null;
+let keyCode: number[] = null;
+let lastKeyCode: number[] = null;
 let clapsNr: number = null;
 let clapSound: number = null;
 
@@ -38,7 +38,8 @@ bluetooth.onUartDataReceived(serial.delimiters(Delimiters.NewLine), function () 
 function messageHandler(receivedString: string) {
     let data = receivedString.split(';')
     lastKeyCode = keyCode
-    keyCode = +data.join('')
+    // keyCode = +data.join('')
+    keyCode = data.map(x => +x)
 
     if (data[0] == '0') {
         forceStop = true;
@@ -81,7 +82,7 @@ function run(commands: Commands){
 
 pfTransmitter.connectIrSenderLed(100) // AnalogPin.P0
 
-function compare(a: number | null, t: number, b: number){
+function compare(a: number | number[] | null, t: number, b: number | number[]){
     t = t > 4 ? t - 4 : t;
     return a == null ? true : t == 1 ? a > b : t == 2 ? a < b : t == 3 ? a === b : t == 4 ? a !== b : false
 }
@@ -281,16 +282,17 @@ function runCommand(cmd: Commands){
     }
     else if (id == 8) {
         // Time trigger
-        if (!cmd[6]){
-            cmd[6] = input.runningTime()
-        }
+        // if (!cmd[6]){
+        //     cmd[6] = input.runningTime()
+        // }
 
-        if (testConditions(cmd[1] as Commands, cmd[6] as number)) {
+        // if (testConditions(cmd[1] as Commands, cmd[6] as number)) {
+        if (testConditions(cmd[1] as Commands)) {
             if (cmd[2] || !cmd[3] || cmd[3] == 2) {
                 cmd[3] = 1
                 run(cmd[4] as Commands)
 
-                cmd[6] = input.runningTime()
+                // cmd[6] = input.runningTime()
             }
         } else {
             if (cmd[2] || cmd[3]) {
@@ -301,15 +303,15 @@ function runCommand(cmd: Commands){
     }
     else if (id == 9) {
         let a = cmd[3] as number;
-        let n = cmd[1] as number
+        let n = cmd[1] as number;
 
         let v = variables[n]
-        variables[n] = cmd[2] == 1 ? a : 
-        cmd[2] == 2 ? v + a : 
-        cmd[2] == 3 ? v - a : 
-        cmd[2] == 4 ? getData(a) :
-        cmd[2] == 5 ? v * a :
-        cmd[2] == 6 ? v / a :
+        variables[n] = cmd[2] == 1 ? a :
+        cmd[2] == 2 ? v + a :
+        cmd[2] == 3 ? v - a :
+        cmd[2] == 4 ? getData(a) as number :
+        // cmd[2] == 5 ? v * a :
+        // cmd[2] == 6 ? v / a :
         // cmd[2] == 8 ? v - getData(a) :
         // cmd[2] == 9 ? v + getData(a) :
         // cmd[2] == 7 ? Math.abs(v) :
@@ -325,9 +327,9 @@ function runCommand(cmd: Commands){
         // else if (cmd[1] == 3) {
         //     pins.setAudioPin(102)
         // }
-        else if (cmd[1] == 4) {
-            input.calibrateCompass()
-        }
+        // else if (cmd[1] == 4) {
+        //     input.calibrateCompass()
+        // }
         else if (cmd[1] == 5) {
             clapSound = input.soundLevel() + 50;
         }
@@ -344,8 +346,10 @@ function runCommand(cmd: Commands){
     else if (id == 14) {
         let trigger = true;
         control.runInBackground(() => {
+            let temlate = cmd[2] as number[];
             while (!forceStop) {
-                if ((cmd[1] ? lastKeyCode : keyCode) == cmd[2] as number) {
+                let pressed = cmd[1] ? lastKeyCode : keyCode;
+                if (temlate.every(elem => pressed.indexOf(elem) != -1)) {
                     if (trigger){
                         run(cmd[3] as Commands)
                         trigger = false;
