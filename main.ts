@@ -9,8 +9,8 @@ let receivingCommand = false;
 let forceStop = false;
 let variables: number[] = [0,0,0]
 let threadsNr = 0;
-let keyCode: number[] = null;
-let lastKeyCode: number[] = null;
+let keyCode: number[] = [];
+let lastKeyCode: number[] = [];
 let clapsNr: number = null;
 let clapSound: number = null;
 
@@ -40,6 +40,7 @@ function messageHandler(receivedString: string) {
     lastKeyCode = keyCode
     // keyCode = +data.join('')
     keyCode = data.map(x => +x)
+    // keyCode = data
 
     if (data[0] == '0') {
         forceStop = true;
@@ -62,7 +63,7 @@ function messageHandler(receivedString: string) {
     }
 }
 
-function run(commands: Commands){
+function run(commands: Commands, thread: boolean = true){
     threadsNr += 1
     for (let cmd of commands){
         runCommand(Array.isArray(cmd) ? cmd as number[] : [cmd as number])
@@ -75,14 +76,14 @@ function run(commands: Commands){
     basic.pause(20)
     
     threadsNr -= 1
-    if (threadsNr == 0){
+    if (threadsNr == 0 && thread){
         btSend(200)
     }
 }
 
 pfTransmitter.connectIrSenderLed(100) // AnalogPin.P0
 
-function compare(a: number | number[] | null, t: number, b: number | number[]){
+function compare(a: any | any[] | null, t: number, b: any | any[]){
     t = t > 4 ? t - 4 : t;
     return a == null ? true : t == 1 ? a > b : t == 2 ? a < b : t == 3 ? a === b : t == 4 ? a !== b : false
 }
@@ -125,58 +126,55 @@ function getData(id: number, p1?: number, p2?: number){
     else if (id == 14) {
         return lastKeyCode
     }
-    else if (id == 15) {
-        if (clapsNr === null){
-            clapsNr = 0;
-            clapSound = input.soundLevel() + 50;
+    // else if (id == 15) {
+    //     if (clapsNr === null){
+    //         clapsNr = 0;
+    //         clapSound = input.soundLevel() + 50;
 
-            control.runInBackground(() => {
-                let triggerTime = 0;
-                let noise = 0;
-                let counter = 0;
+    //         control.runInBackground(() => {
+    //             let triggerTime = 0;
+    //             let noise = 0;
+    //             let counter = 0;
 
-                while (!forceStop) {
-                    if (input.soundLevel() > clapSound) {
-                        if (!noise){
-                            noise = input.runningTime()
-                            triggerTime = 0
-                        }
-                    } else {
-                        // The duration of the clap is short.
-                        if (input.runningTime() - noise < 300) {
-                            counter += 1;
-                            // Last claps nr is available for given time.
-                            clapsNr = 0;
-                            // Waiting 1s before set claps counter.
-                            triggerTime = input.runningTime() + 1000
-                        }
-                        noise = 0
-                    }
+    //             while (!forceStop) {
+    //                 if (input.soundLevel() > clapSound) {
+    //                     if (!noise){
+    //                         noise = input.runningTime()
+    //                         triggerTime = 0
+    //                     }
+    //                 } else {
+    //                     // The duration of the clap is short.
+    //                     if (input.runningTime() - noise < 300) {
+    //                         counter += 1;
+    //                         // Last claps nr is available for given time.
+    //                         clapsNr = 0;
+    //                         // Waiting 1s before set claps counter.
+    //                         triggerTime = input.runningTime() + 1000
+    //                     }
+    //                     noise = 0
+    //                 }
 
-                    if (triggerTime && (input.runningTime() > triggerTime)){
-                        clapsNr = counter;
-                        counter = 0;
-                        triggerTime = 0;
-                    }
+    //                 if (triggerTime && (input.runningTime() > triggerTime)){
+    //                     clapsNr = counter;
+    //                     counter = 0;
+    //                     triggerTime = 0;
+    //                 }
 
-                    basic.pause(20)
-                }
+    //                 basic.pause(20)
+    //             }
 
-                clapsNr = null
-            })
-        }
+    //             clapsNr = null
+    //         })
+    //     }
 
-        return clapsNr
-    }
+    //     return clapsNr
+    // }
     else if (id == 16) {
         return pins.analogReadPin(101); // AnalogPin.P1
     }
     else if (id == -1) {
         return (input.runningTime() - p1) / 100
     }
-    // else if (id == 17) {
-    //     return Math.abs(input.acceleration(Dimension.X)) > 400 || Math.abs(input.acceleration(Dimension.Y)) > 400 ? 1 : 0
-    // }
     else if (id == 18) {
         return + input.buttonIsPressed(Button.A)
     }
@@ -195,9 +193,6 @@ function getData(id: number, p1?: number, p2?: number){
     else if (id == 24) {
         return Math.randomRange(1,6)
     }
-    // else if (id == 25) {
-    //     return +input.isGesture(11)
-    // }
 
     return null
 }
@@ -222,6 +217,13 @@ function plot(action: number, points: number[]){
         let y = Math.trunc(n - x * 10)
         action ? led.plot(x, y) : led.unplot(x, y)
     })
+}
+
+function checkKeysPressed(action: number, pattern: number[]) {
+    let pressed = pattern.every(elem => keyCode.indexOf(elem) != -1);
+    let released = pattern.every(elem => lastKeyCode.indexOf(elem) != -1)
+
+    return action ? !pressed && released : pressed
 }
 
 // --- Commands ---
@@ -346,12 +348,10 @@ function runCommand(cmd: Commands){
     else if (id == 14) {
         let trigger = true;
         control.runInBackground(() => {
-            let temlate = cmd[2] as number[];
             while (!forceStop) {
-                let pressed = cmd[1] ? lastKeyCode : keyCode;
-                if (temlate.every(elem => pressed.indexOf(elem) != -1)) {
+                if (checkKeysPressed(cmd[1] as number, cmd[2] as number[])) {
                     if (trigger){
-                        run(cmd[3] as Commands)
+                        run(cmd[3] as Commands, false)
                         trigger = false;
                     }
                 } else {
