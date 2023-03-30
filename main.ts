@@ -312,8 +312,8 @@ function runCommand(cmd: Commands){
         cmd[2] == 2 ? v + a :
         cmd[2] == 3 ? v - a :
         cmd[2] == 4 ? getData(a) as number :
-        // cmd[2] == 5 ? v * a :
-        // cmd[2] == 6 ? v / a :
+        cmd[2] == 5 ? v * a :
+        cmd[2] == 6 ? v / a :
         // cmd[2] == 8 ? v - getData(a) :
         // cmd[2] == 9 ? v + getData(a) :
         // cmd[2] == 7 ? Math.abs(v) :
