@@ -199,13 +199,20 @@ function getData(id: number, p1?: number, p2?: number){
 
 function testConditions(conditions: Commands, p1?: number, p2?: number){
     let test = true;
-    let op = null;
+    let operator = null;
 
-    for (let c of conditions as number[][]) {
-        let data = c[0] == 20 ? p2 : getData(c[0], p1)
-        let out = compare(data, c[1], c[1] < 5 ? c[2] : getData(c[2], p1))
-        test = op == null ? out : op == 0 ? test && out : test || out;
-        op = c[3]
+    for (let i = 0; i < conditions.length; i++){
+        let c = conditions[i] as Commands;
+        let out;
+        if (Array.isArray(c[2])){
+            out = checkKeysPressed(c[0] == 13 ? 0 : 1, c[2] as number[])
+        } else {
+            let data = c[0] == 20 ? p2 : getData(c[0] as number, p1)
+            out = compare(data, c[1] as number, c[1] < 5 ? c[2] : getData(c[2] as number, p1))
+        }
+
+        test = operator == null ? out : operator == 0 ? test && out : test || out;
+        operator = c[3]
     }
 
     return test
@@ -222,7 +229,6 @@ function plot(action: number, points: number[]){
 function checkKeysPressed(action: number, pattern: number[]) {
     let pressed = pattern.every(elem => keyCode.indexOf(elem) != -1);
     let released = pattern.every(elem => lastKeyCode.indexOf(elem) != -1)
-
     return action ? !pressed && released : pressed
 }
 
@@ -259,7 +265,7 @@ function runCommand(cmd: Commands){
     // This block always requires input in order to
     // work properly.
 
-    else if (id == 5 || id == 6 || id == 16) {
+    else if (id == 5) { // || id == 6 || id == 16
         let c = cmd[1] as Commands;
         let p1 = input.runningTime();
         let p2 = 0;
@@ -366,7 +372,7 @@ function runCommand(cmd: Commands){
     //     music.playTone(cmd[1] as number, music.beat())
     //     basic.pause(cmd[2] as number * 100)
     // }
-    else if (id == 16) {
+    else if (id == 17) {
         pins.analogWritePin(cmd[1] as number, cmd[2] as number)
     }
 }
