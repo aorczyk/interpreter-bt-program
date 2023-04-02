@@ -1,5 +1,9 @@
-// MyMicrobit - code panel interpreter.
-// Author: Adam Orczyk
+/**
+ * MyMicrobit - code panel interpreter.
+ *
+ * (c) 2023, Adam Orczyk
+ */
+
 
 type Commands = (number | number[] | number[][])[]
 
@@ -11,8 +15,9 @@ let variables: number[] = [0,0,0]
 let threadsNr = 0;
 let keyCode: number[] = [];
 let lastKeyCode: number[] = [];
-let clapsNr: number = null;
-let clapSound: number = null;
+
+// let clapsNr: number = null;
+// let clapSound: number = null;
 
 bluetooth.startUartService()
 
@@ -117,16 +122,46 @@ function getData(id: number, p1?: number, p2?: number){
     else if (id == 11) {
         return pins.digitalReadPin(101); // DigitalPin.P1
     }
-    else if (id == 12) {
-        return sonar.ping(101, 102, 1)
-    }
     else if (id == 13) {
         return keyCode
     }
     else if (id == 14) {
         return lastKeyCode
     }
-    // else if (id == 15) {
+    else if (id == 16) {
+        return pins.analogReadPin(101); // AnalogPin.P1
+    }
+    else if (id == -1) {
+        return (input.runningTime() - p1) / 100
+    }
+    else if (id == 18) {
+        return + input.buttonIsPressed(Button.A)
+    }
+    else if (id == 19) {
+        return + input.buttonIsPressed(Button.B)
+    }
+    else if (id == 21) {
+        return input.magneticForce(0)
+    }
+    else if (id == 22) {
+        return input.magneticForce(1)
+    }
+    else if (id == 23) {
+        return input.magneticForce(2)
+    }
+    else if (id == 24) {
+        return Math.randomRange(1,6)
+    }
+
+    // --- Custom input 1 ---
+
+    else if (id == 31) {
+        return sonar.ping(101, 102, 1)
+    }
+
+    // --- Custom input 2 ---
+
+    // else if (id == 32) {
     //     if (clapsNr === null){
     //         clapsNr = 0;
     //         clapSound = input.soundLevel() + 50;
@@ -169,30 +204,11 @@ function getData(id: number, p1?: number, p2?: number){
 
     //     return clapsNr
     // }
-    else if (id == 16) {
-        return pins.analogReadPin(101); // AnalogPin.P1
-    }
-    else if (id == -1) {
-        return (input.runningTime() - p1) / 100
-    }
-    else if (id == 18) {
-        return + input.buttonIsPressed(Button.A)
-    }
-    else if (id == 19) {
-        return + input.buttonIsPressed(Button.B)
-    }
-    else if (id == 21) {
-        return input.magneticForce(0)
-    }
-    else if (id == 22) {
-        return input.magneticForce(1)
-    }
-    else if (id == 23) {
-        return input.magneticForce(2)
-    }
-    else if (id == 24) {
-        return Math.randomRange(1,6)
-    }
+
+    // --- Custom input 3 ---
+
+    // else if (id == 33) {
+    // }
 
     return null
 }
@@ -250,21 +266,6 @@ function runCommand(cmd: Commands){
     else if (id == 4) {
         pfTransmitter.singleOutputMode(cmd[1] as number, cmd[2] as number, cmd[3] as number)
     }
-    // Repeat Block
-    // Use this block to repeat actions.
-    // Blocks placed inside the Repeat Block will be
-    // looped.This can also be called the "loop
-    // block." The loop can be repeated forever,
-    // for a certain amount of time, or until
-    // something happens.
-
-    // Wait For
-    // Use this block to tell the program to wait for
-    // something to happen.It can wait for a set
-    // amount of time or for input from a sensor.
-    // This block always requires input in order to
-    // work properly.
-
     else if (id == 5) { // || id == 6 || id == 16
         let c = cmd[1] as Commands;
         let p1 = input.runningTime();
@@ -290,17 +291,17 @@ function runCommand(cmd: Commands){
     }
     else if (id == 8) {
         // Time trigger
-        // if (!cmd[6]){
-        //     cmd[6] = input.runningTime()
-        // }
+        if (!cmd[6]){
+            cmd[6] = input.runningTime()
+        }
 
-        // if (testConditions(cmd[1] as Commands, cmd[6] as number)) {
-        if (testConditions(cmd[1] as Commands)) {
+        if (testConditions(cmd[1] as Commands, cmd[6] as number)) {
+        // if (testConditions(cmd[1] as Commands)) {
             if (cmd[2] || !cmd[3] || cmd[3] == 2) {
                 cmd[3] = 1
                 run(cmd[4] as Commands)
 
-                // cmd[6] = input.runningTime()
+                cmd[6] = input.runningTime()
             }
         } else {
             if (cmd[2] || cmd[3]) {
@@ -320,8 +321,8 @@ function runCommand(cmd: Commands){
         cmd[2] == 4 ? getData(a) as number :
         cmd[2] == 5 ? v * a :
         cmd[2] == 6 ? v / a :
-        // cmd[2] == 8 ? v - getData(a) :
-        // cmd[2] == 9 ? v + getData(a) :
+        // cmd[2] == 8 ? v - +getData(a) :
+        // cmd[2] == 9 ? v + +getData(a) :
         // cmd[2] == 7 ? Math.abs(v) :
         0
     }
@@ -338,19 +339,13 @@ function runCommand(cmd: Commands){
         // else if (cmd[1] == 4) {
         //     input.calibrateCompass()
         // }
-        else if (cmd[1] == 5) {
-            clapSound = input.soundLevel() + 50;
-        }
+        // else if (cmd[1] == 5) {
+        //     clapSound = input.soundLevel() + 50;
+        // }
     }
-    // else if (id == 11) {
-    //     btSend(cmd[1] + ';')
-    // }
     else if (id == 12) {
         forceStop = true
     }
-    // else if (id == 13) {
-    //     control.reset()
-    // }
     else if (id == 14) {
         let trigger = true;
         control.runInBackground(() => {
@@ -372,8 +367,11 @@ function runCommand(cmd: Commands){
     //     music.playTone(cmd[1] as number, music.beat())
     //     basic.pause(cmd[2] as number * 100)
     // }
+    // --- Custom command ---
     else if (id == 17) {
-        pins.analogWritePin(cmd[1] as number, cmd[2] as number)
+        // if (cmd[1] == 1){
+        //     pins.analogWritePin(cmd[2] as number, cmd[3] as number)
+        // }
     }
 }
 
@@ -388,96 +386,6 @@ function runCommand(cmd: Commands){
  * (c) 2021, Adam Orczyk
  */
 
-// const enum PfChannel {
-//     //% block="1"
-//     Channel1 = 0,
-//     //% block="2"
-//     Channel2 = 1,
-//     //% block="3"
-//     Channel3 = 2,
-//     //% block="4"
-//     Channel4 = 3,
-// }
-
-// const enum PfOutput {
-//     Red = 0,
-//     Blue = 1
-// }
-
-// const enum PfSingleOutput {
-//     //% block="Float"
-//     Float = 0b1000000,
-//     //% block="Forward step 1"
-//     Forward1 = 0b1000001,
-//     //% block="Forward step 2"
-//     Forward2 = 0b1000010,
-//     //% block="Forward step 3"
-//     Forward3 = 0b1000011,
-//     //% block="Forward step 4"
-//     Forward4 = 0b1000100,
-//     //% block="Forward step 5"
-//     Forward5 = 0b1000101,
-//     //% block="Forward step 6"
-//     Forward6 = 0b1000110,
-//     //% block="Forward step 7"
-//     Forward7 = 0b1000111,
-//     //% block="Brake then float"
-//     BrakeThenFloat = 0b1001000,
-//     //% block="Backward step 7"
-//     Backward7 = 0b1001001,
-//     //% block="Backward step 6"
-//     Backward6 = 0b1001010,
-//     //% block="Backward step 5"
-//     Backward5 = 0b1001011,
-//     //% block="Backward step 4"
-//     Backward4 = 0b1001100,
-//     //% block="Backward step 3"
-//     Backward3 = 0b1001101,
-//     //% block="Backward step 2"
-//     Backward2 = 0b1001110,
-//     //% block="Backward step 1"
-//     Backward1 = 0b1001111,
-
-//     //% block="Increment"
-//     IncrementPWM = 0b1100100,
-//     //% block="Decrement"
-//     DecrementPWM = 0b1100101,
-//     //% block="Full forward"
-//     FullForward = 0b1100110,
-//     //% block="Full backward"
-//     FullBackward = 0b1100111,
-
-//     //% block="Toggle full forward/backward (default forward)"
-//     ToggleFullForwardBackward = 0b1101000,
-
-//     //% block="Toggle full forward (Stop → Fw, Fw → Stop, Bw → Fw)"
-//     ToggleFullForward = 0b1100000,
-//     //% block="Toggle full backward (Stop → Bw, Bw → Stop, Fwd → Bw)"
-//     ToggleFullBackward = 0b1101111,
-
-//     //% block="Toggle direction"
-//     ToggleDirection = 0b1100001,
-//     //% block="Increment Numerical PWM"
-//     IncrementNumericalPWM = 0b1100010,
-//     //% block="Decrement Numerical PWM"
-//     DecrementNumericalPWM = 0b1100011,
-
-//     //% block="Clear C1 (negative logic – C1 high)"
-//     ClearC1 = 0b1101001,
-//     //% block="Set C1 (negative logic – C1 low)"
-//     SetC1 = 0b1101010,
-//     //% block="Toggle C1"
-//     ToggleC1 = 0b1101011,
-
-//     //% block="Clear C2 (negative logic – C2 high)"
-//     ClearC2 = 0b1101100,
-//     //% block="Set C2 (negative logic – C2 low)"
-//     SetC2 = 0b1101101,
-//     //% block="Toggle C2"
-//     ToggleC2 = 0b1101110,
-// }
-
-//% color=#f68420 icon="\uf1eb" block="PF Transmitter"
 namespace pfTransmitter {
     let irLed: InfraredLed;
     let toggleByChannel: number[];
@@ -603,14 +511,6 @@ namespace pfTransmitter {
             })
         }
 
-        // Pause after each command packet - seems not needed.
-        // if (!mixDatagrams) {
-        //     tasks.push({
-        //         handler: () => {},
-        //         type: taskType
-        //     })
-        // }
-
         if (!schedulerIsWorking) {
             schedulerIsWorking = true;
 
@@ -632,17 +532,6 @@ namespace pfTransmitter {
         }
     }
 
-    /**
-     * Connects to the IR-emitting diode at the specified pin. Warning! The light (solar or lamp) falling on the diode or ir receiver interferes with the signal transmission.
-     * @param pin IR diode pin, eg: AnalogPin.P0
-     * @param debug turn on debug mode if set to true (false by default), eg: false
-     */
-    //% blockId="pf_transmitter_infrared_sender_connect"
-    //% block="connect IR sender diode at pin %pin || debug %debug"
-    //% pin.fieldEditor="gridpicker"
-    //% pin.fieldOptions.columns=4
-    //% pin.fieldOptions.tooltips="false"
-    //% weight=90
     export function connectIrSenderLed(pin: AnalogPin): void {
         toggleByChannel = [1, 1, 1, 1];
         schedulerIsWorking = false;
@@ -657,17 +546,6 @@ namespace pfTransmitter {
         irLed = new InfraredLed(pin);
     }
 
-    /**
-     * Single output mode (speed remote control).
-     * This mode is able to control: one output at a time with PWM or clear/set/toggle control pins.
-     * This mode has no timeout for lost IR on all commands except "full forward" and "full backward".
-     * @param channel the PF receiver channel, eg: PfChannel.Channel1
-     * @param output the PF receiver output, eg: PfOutput.Red
-     * @param command the Single Output Mode command, eg: PfSingleOutput.Float
-     */
-    //% blockId="pf_transmitter_single_output_mode"
-    //% block="set speed : channel %channel output %output command %command"
-    //% weight=80
     export function singleOutputMode(channel: number, output: number, command: number) {
         let mixDatagrams = true;
 
