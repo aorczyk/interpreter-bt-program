@@ -220,8 +220,8 @@ function testConditions(conditions: Commands, p1?: number, p2?: number){
     for (let i = 0; i < conditions.length; i++){
         let c = conditions[i] as Commands;
         let out;
-        if (c[0] == 13 || c[0] == 14){
-            out = checkKeysPressed(c[0] == 13, c[2] as number[])
+        if (Array.isArray(c[2])){
+            out = checkKeysPressed(c[0] != 13, c[2] as number[])
         } else {
             let data = c[0] == 20 ? p2 : getData(c[0] as number, p1)
             out = compare(data, c[1] as number, c[1] < 5 ? c[2] : getData(c[2] as number, p1))
@@ -350,7 +350,7 @@ function runCommand(cmd: Commands){
         let trigger = true;
         control.runInBackground(() => {
             while (!forceStop) {
-                if (checkKeysPressed(cmd[1] == 0, cmd[2] as number[])) {
+                if (checkKeysPressed(cmd[1] == 1, cmd[2] as number[])) {
                     if (trigger){
                         run(cmd[3] as Commands, false)
                         trigger = false;
