@@ -220,7 +220,7 @@ function testConditions(conditions: Commands, p1?: number, p2?: number){
     for (let i = 0; i < conditions.length; i++){
         let c = conditions[i] as Commands;
         let out;
-        if (Array.isArray(c[2])){
+        if (c[0] == 13 || c[0] == 14){
             out = checkKeysPressed(c[0] == 13, c[2] as number[])
         } else {
             let data = c[0] == 20 ? p2 : getData(c[0] as number, p1)
