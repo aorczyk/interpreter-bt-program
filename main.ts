@@ -13,8 +13,8 @@ let receivingCommand = false;
 let forceStop = false;
 let variables: number[] = [0,0,0]
 let threadsNr = 0;
-let keyCode: number[] = [];
-let lastKeyCode: number[] = [];
+let pressedKeys: number[] = [];
+let releasedKeys: number[] = [];
 
 // let clapsNr: number = null;
 // let clapSound: number = null;
@@ -42,10 +42,9 @@ bluetooth.onUartDataReceived(serial.delimiters(Delimiters.NewLine), function () 
 
 function messageHandler(receivedString: string) {
     let data = receivedString.split(';')
-    lastKeyCode = keyCode
-    // keyCode = +data.join('')
-    keyCode = data.map(x => +x)
-    // keyCode = data
+    releasedKeys = pressedKeys
+    pressedKeys = data.map(x => +x)
+    // releasedKeys = releasedKeys.filter(x => pressedKeys.indexOf(x) == -1)
 
     if (data[0] == '0') {
         forceStop = true;
@@ -123,10 +122,10 @@ function getData(id: number, p1?: number, p2?: number){
         return pins.digitalReadPin(101); // DigitalPin.P1
     }
     else if (id == 13) {
-        return keyCode
+        return pressedKeys
     }
     else if (id == 14) {
-        return lastKeyCode
+        return releasedKeys
     }
     else if (id == 16) {
         return pins.analogReadPin(101); // AnalogPin.P1
@@ -243,9 +242,7 @@ function plot(action: number, points: number[]){
 }
 
 function checkKeysPressed(action: boolean, pattern: number[]) {
-    let pressed = pattern.every(elem => keyCode.indexOf(elem) != -1);
-    let released = pattern.every(elem => lastKeyCode.indexOf(elem) != -1)
-    return action ? !pressed && released : pressed
+    return pattern.every(elem => action ? pressedKeys.indexOf(elem) == -1 && releasedKeys.indexOf(elem) != -1 : pressedKeys.indexOf(elem) != -1);
 }
 
 // --- Commands ---
