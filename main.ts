@@ -109,14 +109,8 @@ function getData(id: number, p1?: number, p2?: number){
     else if (id == 7) {
         return input.temperature()
     }
-    else if (id == 8) {
-        return variables[0]
-    }
-    else if (id == 9) {
-        return variables[1]
-    }
-    else if (id == 10) {
-        return variables[2]
+    else if (id >= 50) {
+        return variables[id - 50]
     }
     else if (id == 11) {
         return pins.digitalReadPin(101); // DigitalPin.P1
@@ -288,17 +282,17 @@ function runCommand(cmd: Commands){
     }
     else if (id == 8) {
         // Time trigger
-        if (!cmd[6]){
-            cmd[6] = input.runningTime()
-        }
+        // if (!cmd[6]){
+        //     cmd[6] = input.runningTime()
+        // }
 
-        if (testConditions(cmd[1] as Commands, cmd[6] as number)) {
-        // if (testConditions(cmd[1] as Commands)) {
+        // if (testConditions(cmd[1] as Commands, cmd[6] as number)) {
+        if (testConditions(cmd[1] as Commands)) {
             if (cmd[2] || !cmd[3] || cmd[3] == 2) {
                 cmd[3] = 1
                 run(cmd[4] as Commands)
 
-                cmd[6] = input.runningTime()
+                // cmd[6] = input.runningTime()
             }
         } else {
             if (cmd[2] || cmd[3]) {
@@ -365,10 +359,10 @@ function runCommand(cmd: Commands){
     //     basic.pause(cmd[2] as number * 100)
     // }
     // --- Custom command ---
-    else if (id == 17) {
-        // if (cmd[1] == 1){
-        //     pins.analogWritePin(cmd[2] as number, cmd[3] as number)
-        // }
+    // else if (id == 17) {
+    // }
+    else if (id == 18) {
+        pins.analogWritePin(cmd[2] as number, cmd[3] as number)
     }
 }
 
