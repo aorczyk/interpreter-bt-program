@@ -362,7 +362,7 @@ function runCommand(cmd: Commands){
     // else if (id == 17) {
     // }
     else if (id == 18) {
-        pins.analogWritePin(cmd[2] as number, cmd[3] as number)
+        pins.analogWritePin(cmd[1] as number, cmd[2] as number)
     }
 }
 
