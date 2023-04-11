@@ -109,20 +109,11 @@ function getData(id: number, p1?: number, p2?: number){
     else if (id == 7) {
         return input.temperature()
     }
-    else if (id >= 50) {
-        return variables[id - 50]
-    }
-    else if (id == 11) {
-        return pins.digitalReadPin(101); // DigitalPin.P1
-    }
     else if (id == 13) {
         return pressedKeys
     }
     else if (id == 14) {
         return releasedKeys
-    }
-    else if (id == 16) {
-        return pins.analogReadPin(101); // AnalogPin.P1
     }
     else if (id == -1) {
         return (input.runningTime() - p1) / 100
@@ -145,7 +136,15 @@ function getData(id: number, p1?: number, p2?: number){
     else if (id == 24) {
         return Math.randomRange(1,6)
     }
-
+    else if (id >= 70) {
+        return pins.digitalReadPin(id + 30);
+    }
+    else if (id >= 60) {
+        return pins.analogReadPin(id + 40);
+    }
+    else if (id >= 50) {
+        return variables[id - 50]
+    }
     // --- Custom input 1 ---
 
     else if (id == 31) {
@@ -317,22 +316,9 @@ function runCommand(cmd: Commands){
         // cmd[2] == 7 ? Math.abs(v) :
         0
     }
+    // PinPullMode
     else if (id == 10) {
-        if (cmd[1] == 1){
-            pins.setPull(101, 1) // PinPullMode.PullUp
-        } 
-        else if (cmd[1] == 2) {
-            pins.setPull(101, 0)
-        }
-        // else if (cmd[1] == 3) {
-        //     pins.setAudioPin(102)
-        // }
-        // else if (cmd[1] == 4) {
-        //     input.calibrateCompass()
-        // }
-        // else if (cmd[1] == 5) {
-        //     clapSound = input.soundLevel() + 50;
-        // }
+        pins.setPull(cmd[1] as number, cmd[2] as number - 1)
     }
     else if (id == 12) {
         forceStop = true
