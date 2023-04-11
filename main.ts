@@ -302,7 +302,7 @@ function runCommand(cmd: Commands){
     }
     else if (id == 9) {
         let a = cmd[3] as number;
-        let n = cmd[1] as number;
+        let n = cmd[1] as number - 50;
 
         let v = variables[n]
         variables[n] = cmd[2] == 1 ? a :
@@ -319,7 +319,6 @@ function runCommand(cmd: Commands){
     // PinPullMode
     else if (id == 10) {
         pins.setPull(cmd[1] as number, cmd[2] as number)
-        PinPullMode.PullNone
     }
     else if (id == 12) {
         forceStop = true
