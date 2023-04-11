@@ -318,7 +318,8 @@ function runCommand(cmd: Commands){
     }
     // PinPullMode
     else if (id == 10) {
-        pins.setPull(cmd[1] as number, cmd[2] as number - 1)
+        pins.setPull(cmd[1] as number, cmd[2] as number)
+        PinPullMode.PullNone
     }
     else if (id == 12) {
         forceStop = true
