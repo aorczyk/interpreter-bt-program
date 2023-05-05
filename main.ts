@@ -5,7 +5,7 @@
  */
 
 
-type Commands = (number | number[] | number[][])[]
+type Commands = (any | any[] | any[][])[]
 
 let commandsString = ''
 let commands: Commands = []
@@ -13,8 +13,8 @@ let receivingCommand = false;
 let forceStop = false;
 let variables: number[] = [0,0,0]
 let threadsNr = 0;
-let pressedKeys: number[] = [];
-let lastPressedKeys: number[] = [];
+let pressedKeys: string[] = [];
+let lastPressedKeys: string[] = [];
 
 // let clapsNr: number = null;
 // let clapSound: number = null;
@@ -43,7 +43,8 @@ bluetooth.onUartDataReceived(serial.delimiters(Delimiters.NewLine), function () 
 function messageHandler(receivedString: string) {
     let data = receivedString.split(';')
     lastPressedKeys = pressedKeys
-    pressedKeys = data.map(x => +x)
+    // pressedKeys = data.map(x => +x)
+    pressedKeys = data
     // lastPressedKeys = lastPressedKeys.filter(x => pressedKeys.indexOf(x) == -1)
 
     if (data[0] == '0') {
@@ -213,7 +214,7 @@ function testConditions(conditions: Commands, p1?: number, p2?: number){
         let c = conditions[i] as Commands;
         let out;
         if (Array.isArray(c[2])){
-            out = checkKeysPressed(c[0] != 13, c[2] as number[])
+            out = checkKeysPressed(c[0] != 13, c[2] as string[])
         } else {
             let data = c[0] == 20 ? p2 : getData(c[0] as number, p1)
             out = compare(data, c[1] as number, c[1] < 5 ? c[2] : getData(c[2] as number, p1))
@@ -234,7 +235,7 @@ function plot(action: number, points: number[]){
     })
 }
 
-function checkKeysPressed(action: boolean, pattern: number[]) {
+function checkKeysPressed(action: boolean, pattern: string[]) {
     return pattern.every(elem => action ? pressedKeys.indexOf(elem) == -1 && lastPressedKeys.indexOf(elem) != -1 : pressedKeys.indexOf(elem) != -1);
 }
 
@@ -327,7 +328,7 @@ function runCommand(cmd: Commands){
         let trigger = true;
         control.runInBackground(() => {
             while (!forceStop) {
-                if (checkKeysPressed(cmd[1] == 1, cmd[2] as number[])) {
+                if (checkKeysPressed(cmd[1] == 1, cmd[2] as string[])) {
                     if (trigger){
                         run(cmd[3] as Commands, false)
                         trigger = false;
@@ -370,6 +371,7 @@ namespace pfTransmitter {
     let tasks: task[];
     let intervalId: number[];
     export let lastCommand: number;
+    let mixDatagrams = false;
 
     type Settings = {
         repeatCommandAfter: number,
@@ -450,12 +452,7 @@ namespace pfTransmitter {
     interface task {
         handler: () => void;
         type: number;
-    }
-
-    function getRandomInt(min: number, max: number) {
-        min = Math.ceil(min);
-        max = Math.floor(max);
-        return Math.floor(Math.random() * (max - min + 1)) + min;
+        counter: number;
     }
 
     function addToggle(command: number) {
@@ -465,43 +462,45 @@ namespace pfTransmitter {
         return (toggleByChannel[channel] << 11) | command;
     }
 
-    function sendPacket(command: number, mixDatagrams: boolean = false) {
+    function sendPacket(command: number, mix: boolean = false) {
+        mixDatagrams = mix;
         let taskType = 0b001100110000 & command;
         command = addToggle(command);
         lastCommand = command;
 
         if (mixDatagrams) {
             // Prevents from mixing two commands to the same output ex. start and stop.
-            while (tasks.filter(x => { return x.type == taskType }).length > 0) {
-                basic.pause(20)
+            while (tasks.some(x => x.type == taskType)) {
+                basic.pause(20) // Passes control to the micro:bit scheduler. https://makecode.microbit.org/device/reactive
             }
         }
 
         // "Five exactly matching messages (if no other buttons are pressed or released) are sent ... ."
         // "(if no other buttons are pressed or released)" - this is not handle now, every command is sent one by one or mixed. It should be handled by receiver.
-        for (let i = 0; i < settings.signalRepeatNumber; i++) {
-            tasks.push({
-                handler: () => {
-                    irLed.sendCommand(command)
-                },
-                type: taskType
-            })
-        }
+        tasks.push({
+            handler: () => {
+                irLed.sendCommand(command)
+            },
+            type: taskType,
+            counter: settings.signalRepeatNumber
+        })
 
         if (!schedulerIsWorking) {
             schedulerIsWorking = true;
 
             control.inBackground(function () {
+                let i = 0;
                 while (tasks.length > 0) {
-                    let i = 0;
-                    if (mixDatagrams) {
-                        i = getRandomInt(0, tasks.length - 1);
-                    }
                     tasks[i].handler();
-                    tasks.splice(i, 1);
+                    tasks[i].counter -= 1;
+                    if (!tasks[i].counter) {
+                        tasks.splice(i, 1);
+                    }
 
-                    // Pause time after each signal.
+                    // Pause time after each signal to process it by IR receiver.
                     basic.pause(settings.afterSignalPause)
+
+                    i = (mixDatagrams && i < tasks.length - 1) ? i + 1 : 0;
                 }
 
                 schedulerIsWorking = false;
@@ -524,13 +523,7 @@ namespace pfTransmitter {
     }
 
     export function singleOutputMode(channel: number, output: number, command: number) {
-        let mixDatagrams = true;
-
         // Because: Toggle bit is verified on receiver if increment/decrement/toggle command is received.
-        if ([0b1100100, 0b1100101].some(x => x == command)) {
-            mixDatagrams = false
-        }
-
-        sendPacket((channel << 8) | command | (output << 4), mixDatagrams)
+        sendPacket((channel << 8) | command | (output << 4), ![0b1100100, 0b1100101].some(x => x == command))
     }
 }
