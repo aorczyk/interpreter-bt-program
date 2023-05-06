@@ -524,6 +524,6 @@ namespace pfTransmitter {
 
     export function singleOutputMode(channel: number, output: number, command: number) {
         // Because: Toggle bit is verified on receiver if increment/decrement/toggle command is received.
-        sendPacket((channel << 8) | command | (output << 4), ![0b1100100, 0b1100101].some(x => x == command))
+        sendPacket((channel << 8) | command | (output << 4), !(0b1100100 == command || 0b1100101 == command))
     }
 }
