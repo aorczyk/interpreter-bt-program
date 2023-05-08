@@ -1,5 +1,5 @@
 /**
- * MyMicrobit - code panel interpreter.
+ * MyMicrobit - program interpreter.
  *
  * (c) 2023, Adam Orczyk
  */
@@ -23,15 +23,6 @@ bluetooth.startUartService()
 
 led.plot(2, 0)
 
-// bluetooth.onBluetoothConnected(function () {
-//     led.plot(1, 0)
-// })
-
-// bluetooth.onBluetoothDisconnected(function () {
-//     basic.clearScreen()
-//     led.plot(2, 0)
-// })
-
 function btSend(str: string | number) {
     bluetooth.uartWriteString(str + '\n')
 }
@@ -44,8 +35,6 @@ function messageHandler(receivedString: string) {
     let data = receivedString.split(';')
     lastPressedKeys = pressedKeys
     pressedKeys = data.map(x => +x)
-    // pressedKeys = data
-    // lastPressedKeys = lastPressedKeys.filter(x => pressedKeys.indexOf(x) == -1)
 
     if (data[0] == '0') {
         forceStop = true;
@@ -68,7 +57,7 @@ function messageHandler(receivedString: string) {
     }
 }
 
-function run(commands: Commands, thread: boolean = true){
+function run(commands: Commands){
     threadsNr += 1
     for (let cmd of commands){
         runCommand(Array.isArray(cmd) ? cmd as number[] : [cmd as number])
@@ -81,7 +70,7 @@ function run(commands: Commands, thread: boolean = true){
     basic.pause(20)
     
     threadsNr -= 1
-    if (threadsNr == 0 && thread){
+    if (threadsNr == 0){
         btSend(200)
     }
 }
@@ -237,9 +226,8 @@ function plot(action: number, points: number[]){
 }
 
 function checkKeysPressed(action: boolean, pattern: number[]) {
-    // return pattern.every(elem => action ? pressedKeys.indexOf(elem) == -1 : pressedKeys.indexOf(elem) != -1);// && lastPressedKeys.indexOf(elem) != -1
     return action ? pattern.some(elem => pressedKeys.indexOf(elem) == -1) : pattern.every(elem => pressedKeys.indexOf(elem) != -1);// && lastPressedKeys.indexOf(elem) != -1
-} // pressedKeys.length == pattern.length && 
+}
 
 // --- Commands ---
 function runCommand(cmd: Commands){
@@ -283,18 +271,10 @@ function runCommand(cmd: Commands){
         })
     }
     else if (id == 8) {
-        // Time trigger
-        // if (!cmd[6]){
-        //     cmd[6] = input.runningTime()
-        // }
-
-        // if (testConditions(cmd[1] as Commands, cmd[6] as number)) {
         if (testConditions(cmd[1] as Commands)) {
             if (cmd[2] || !cmd[3] || cmd[3] == 2) {
                 cmd[3] = 1
                 run(cmd[4] as Commands)
-
-                // cmd[6] = input.runningTime()
             }
         } else {
             if (cmd[2] || cmd[3]) {
