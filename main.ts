@@ -306,10 +306,9 @@ function runCommand(cmd: Commands){
     else if (id == 12) {
         forceStop = true
     }
-    // else if (id == 15) {
-    //     music.playTone(cmd[1] as number, music.beat())
-    //     basic.pause(cmd[2] as number * 100)
-    // }
+    else if (id == 15) {
+        music.playTone(cmd[1] as number, cmd[2] as number * 100)
+    }
     // --- Custom command ---
     // else if (id == 17) {
     // }
