@@ -5,7 +5,7 @@
  */
 
 
-type Commands = (any | any[] | any[][])[]
+type Commands = (number | number[] | number[][])[]
 
 let commandsString = ''
 let commands: Commands = []
@@ -13,8 +13,8 @@ let receivingCommand = false;
 let forceStop = false;
 let variables: number[] = [0,0,0]
 let threadsNr = 0;
-let pressedKeys: string[] = [];
-let lastPressedKeys: string[] = [];
+let pressedKeys: number[] = [];
+let lastPressedKeys: number[] = [];
 
 // let clapsNr: number = null;
 // let clapSound: number = null;
@@ -43,8 +43,8 @@ bluetooth.onUartDataReceived(serial.delimiters(Delimiters.NewLine), function () 
 function messageHandler(receivedString: string) {
     let data = receivedString.split(';')
     lastPressedKeys = pressedKeys
-    // pressedKeys = data.map(x => +x)
-    pressedKeys = data
+    pressedKeys = data.map(x => +x)
+    // pressedKeys = data
     // lastPressedKeys = lastPressedKeys.filter(x => pressedKeys.indexOf(x) == -1)
 
     if (data[0] == '0') {
@@ -88,7 +88,7 @@ function run(commands: Commands, thread: boolean = true){
 
 pfTransmitter.connectIrSenderLed(100) // AnalogPin.P0
 
-function compare(a: any | any[] | null, t: number, b: any | any[]){
+function compare(a: any | any[] | null, t: number, b: any | any[]) {
     t = t > 4 ? t - 4 : t;
     return a == null ? true : t == 1 ? a > b : t == 2 ? a < b : t == 3 ? a === b : t == 4 ? a !== b : false
 }
@@ -214,7 +214,8 @@ function testConditions(conditions: Commands, p1?: number, p2?: number){
         let c = conditions[i] as Commands;
         let out;
         if (Array.isArray(c[2])){
-            out = checkKeysPressed(c[0] != 13, c[2] as string[])
+            out = checkKeysPressed(c[0] != 13, c[2] as number[])
+            out = c[1] == 4 ? !out : out
         } else {
             let data = c[0] == 20 ? p2 : getData(c[0] as number, p1)
             out = compare(data, c[1] as number, c[1] < 5 ? c[2] : getData(c[2] as number, p1))
@@ -235,9 +236,10 @@ function plot(action: number, points: number[]){
     })
 }
 
-function checkKeysPressed(action: boolean, pattern: string[]) {
-    return pattern.every(elem => action ? pressedKeys.indexOf(elem) == -1 && lastPressedKeys.indexOf(elem) != -1 : pressedKeys.indexOf(elem) != -1);
-}
+function checkKeysPressed(action: boolean, pattern: number[]) {
+    // return pattern.every(elem => action ? pressedKeys.indexOf(elem) == -1 : pressedKeys.indexOf(elem) != -1);// && lastPressedKeys.indexOf(elem) != -1
+    return action ? pattern.some(elem => pressedKeys.indexOf(elem) == -1) : pattern.every(elem => pressedKeys.indexOf(elem) != -1);// && lastPressedKeys.indexOf(elem) != -1
+} // pressedKeys.length == pattern.length && 
 
 // --- Commands ---
 function runCommand(cmd: Commands){
@@ -323,23 +325,6 @@ function runCommand(cmd: Commands){
     }
     else if (id == 12) {
         forceStop = true
-    }
-    else if (id == 14) {
-        let trigger = true;
-        control.runInBackground(() => {
-            while (!forceStop) {
-                if (checkKeysPressed(cmd[1] == 1, cmd[2] as string[])) {
-                    if (trigger){
-                        run(cmd[3] as Commands, false)
-                        trigger = false;
-                    }
-                } else {
-                    trigger = true;
-                }
-
-                basic.pause(20)
-            }
-        })
     }
     // else if (id == 15) {
     //     music.playTone(cmd[1] as number, music.beat())
