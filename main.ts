@@ -23,6 +23,8 @@ bluetooth.startUartService()
 
 led.plot(2, 0)
 
+pins.setAudioPin(116)
+
 function btSend(str: string | number) {
     bluetooth.uartWriteString(str + '\n')
 }
@@ -307,7 +309,8 @@ function runCommand(cmd: Commands){
         forceStop = true
     }
     else if (id == 15) {
-        music.playTone(cmd[1] as number, cmd[2] as number * 100)
+        music.setVolume(cmd[4] as number)
+        music.playTone(cmd[1] as number || cmd[2] as number, cmd[3] as number * 100)
     }
     // --- Custom command ---
     // else if (id == 17) {
