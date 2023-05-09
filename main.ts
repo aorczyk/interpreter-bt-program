@@ -311,6 +311,7 @@ function runCommand(cmd: Commands){
     else if (id == 15) {
         music.setVolume(cmd[4] as number)
         music.playTone(cmd[1] as number || cmd[2] as number, cmd[3] as number * 100)
+        basic.pause(cmd[5] as number * 100)
     }
     // --- Custom command ---
     // else if (id == 17) {
