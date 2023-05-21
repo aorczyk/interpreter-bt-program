@@ -20,10 +20,9 @@ let lastPressedKeys: number[] = [];
 // let clapSound: number = null;
 
 bluetooth.startUartService()
+pfTransmitter.connectIrSenderLed(100) // AnalogPin.P0
 
 led.plot(2, 0)
-
-pins.setAudioPin(116)
 
 function btSend(str: string | number) {
     bluetooth.uartWriteString(str + '\n')
@@ -76,8 +75,6 @@ function run(commands: Commands){
         btSend(200)
     }
 }
-
-pfTransmitter.connectIrSenderLed(100) // AnalogPin.P0
 
 function compare(a: any | any[] | null, t: number, b: any | any[]) {
     t = t > 4 ? t - 4 : t;
@@ -228,7 +225,7 @@ function plot(action: number, points: number[]){
 }
 
 function checkKeysPressed(action: boolean, pattern: number[]) {
-    return action ? pattern.some(elem => pressedKeys.indexOf(elem) == -1) : pattern.every(elem => pressedKeys.indexOf(elem) != -1);// && lastPressedKeys.indexOf(elem) != -1
+    return action ? pattern.some(elem => pressedKeys.indexOf(elem) == -1 && lastPressedKeys.indexOf(elem) != -1) : pattern.every(elem => pressedKeys.indexOf(elem) != -1);// && lastPressedKeys.indexOf(elem) != -1
 }
 
 // --- Commands ---
@@ -307,6 +304,9 @@ function runCommand(cmd: Commands){
     }
     else if (id == 12) {
         forceStop = true
+    }
+    else if (id == 19) {
+        control.reset()
     }
     else if (id == 15) {
         music.setVolume(cmd[4] as number)
@@ -483,7 +483,7 @@ namespace pfTransmitter {
         intervalId = [null, null, null, null];
         settings = {
             repeatCommandAfter: 500,
-            afterSignalPause: 0,
+            afterSignalPause: 10,
             signalRepeatNumber: 5
         }
 
