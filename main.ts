@@ -14,7 +14,7 @@ let forceStop = false;
 let variables: number[] = [0,0,0]
 let threadsNr = 0;
 let pressedKeys: number[] = [];
-let lastPressedKeys: number[] = [];
+let lastPressedKeys: { [key: number]: boolean } = {};
 
 // let clapsNr: number = null;
 // let clapSound: number = null;
@@ -34,8 +34,6 @@ bluetooth.onUartDataReceived(serial.delimiters(Delimiters.NewLine), function () 
 
 function messageHandler(receivedString: string) {
     let data = receivedString.split(';')
-    lastPressedKeys = pressedKeys
-    pressedKeys = data.map(x => +x)
 
     if (data[0] == '0') {
         forceStop = true;
@@ -48,13 +46,22 @@ function messageHandler(receivedString: string) {
         receivingCommand = false
         commands = JSON.parse(commandsString)
         basic.clearScreen()
+        pressedKeys = []
+        lastPressedKeys = {}
         btSend('1')
     } else if (receivingCommand) {
         commandsString += data[0]
-    } 
-    else if (data[0] == '>>') {
+    } else if (data[0] == '>>') {
         forceStop = false
         control.runInBackground(() => run(commands))
+    } else {
+        for (let k of pressedKeys) {
+            lastPressedKeys[k] = true
+        }
+        pressedKeys = data.map(x => +x)
+        for (let k of pressedKeys) {
+            lastPressedKeys[k] = false
+        }
     }
 }
 
@@ -97,12 +104,6 @@ function getData(id: number, p1?: number, p2?: number){
     }
     else if (id == 7) {
         return input.temperature()
-    }
-    else if (id == 13) {
-        return pressedKeys
-    }
-    else if (id == 14) {
-        return lastPressedKeys
     }
     else if (id == -1) {
         return (input.runningTime() - p1) / 100
@@ -201,8 +202,8 @@ function testConditions(conditions: Commands, p1?: number, p2?: number){
     for (let i = 0; i < conditions.length; i++){
         let c = conditions[i] as Commands;
         let out;
-        if (Array.isArray(c[2])){
-            out = checkKeysPressed(c[0] != 13, c[2] as number[])
+        if (c[0] == 13 || c[0] == 14){
+            out = checkKeysPressed(c[0] as number, c[2] as number[])
             out = c[1] == 4 ? !out : out
         } else {
             let data = c[0] == 20 ? p2 : getData(c[0] as number, p1)
@@ -224,8 +225,10 @@ function plot(action: number, points: number[]){
     })
 }
 
-function checkKeysPressed(action: boolean, pattern: number[]) {
-    return action ? pattern.some(elem => pressedKeys.indexOf(elem) == -1 && lastPressedKeys.indexOf(elem) != -1) : pattern.every(elem => pressedKeys.indexOf(elem) != -1);// && lastPressedKeys.indexOf(elem) != -1
+function checkKeysPressed(operator: number, pattern: number[]) {
+    return operator == 14 ? pattern.every(elem => lastPressedKeys[elem]) : pattern.every(elem => pressedKeys.indexOf(elem) != -1);// && lastPressedKeys.indexOf(elem) != -1
+    // return action ? pattern.some(elem => pressedKeys.indexOf(elem) == -1 && lastPressedKeys.indexOf(elem) != -1) : pattern.every(elem => pressedKeys.indexOf(elem) != -1);// && lastPressedKeys.indexOf(elem) != -1
+    // return pattern.every(elem => pressedKeys.indexOf(elem) != -1);
 }
 
 // --- Commands ---
