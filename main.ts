@@ -33,7 +33,7 @@ bluetooth.onUartDataReceived(serial.delimiters(Delimiters.NewLine), function () 
 })
 
 function messageHandler(receivedString: string) {
-    let data = receivedString.split(';')
+    let data = receivedString ? receivedString.split(';') : []
 
     if (data[0] == '0') {
         forceStop = true;
@@ -55,6 +55,9 @@ function messageHandler(receivedString: string) {
         forceStop = false
         control.runInBackground(() => run(commands))
     } else {
+        if (!pressedKeys.length){
+            lastPressedKeys = {}
+        }
         for (let k of pressedKeys) {
             lastPressedKeys[k] = true
         }
@@ -226,9 +229,7 @@ function plot(action: number, points: number[]){
 }
 
 function checkKeysPressed(operator: number, pattern: number[]) {
-    return operator == 14 ? pattern.every(elem => lastPressedKeys[elem]) : pattern.every(elem => pressedKeys.indexOf(elem) != -1);// && lastPressedKeys.indexOf(elem) != -1
-    // return action ? pattern.some(elem => pressedKeys.indexOf(elem) == -1 && lastPressedKeys.indexOf(elem) != -1) : pattern.every(elem => pressedKeys.indexOf(elem) != -1);// && lastPressedKeys.indexOf(elem) != -1
-    // return pattern.every(elem => pressedKeys.indexOf(elem) != -1);
+    return operator == 14 ? pattern.every(elem => lastPressedKeys[elem]) : pattern.every(elem => pressedKeys.indexOf(elem) != -1);
 }
 
 // --- Commands ---
