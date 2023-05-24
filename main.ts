@@ -4,7 +4,6 @@
  * (c) 2023, Adam Orczyk
  */
 
-
 type Commands = (number | number[] | number[][])[]
 
 let commandsString = ''
@@ -22,26 +21,27 @@ let lastPressedKeys: { [key: number]: boolean } = {};
 bluetooth.startUartService()
 pfTransmitter.connectIrSenderLed(100) // AnalogPin.P0
 
-led.plot(2, 0)
-
-function btSend(str: string | number) {
-    bluetooth.uartWriteString(str + '\n')
-}
+led.plot(2,0)
 
 bluetooth.onUartDataReceived(serial.delimiters(Delimiters.NewLine), function () {
     messageHandler(bluetooth.uartReadUntil(serial.delimiters(Delimiters.NewLine)))
 })
+
+function btSend(str: string | number) {
+    bluetooth.uartWriteString(str + '\n')
+}
 
 function messageHandler(receivedString: string) {
     let data = receivedString ? receivedString.split(';') : []
 
     if (data[0] == '0') {
         forceStop = true;
+    } else if (data[0] == '-v') {
+        btSend('v1.0.0')
     } else if (data[0] == '<'){
         receivingCommand = true
         commandsString = ''
         commands = []
-        return
     } else if (data[0] == '>'){
         receivingCommand = false
         commands = JSON.parse(commandsString)
@@ -49,12 +49,17 @@ function messageHandler(receivedString: string) {
         pressedKeys = []
         lastPressedKeys = {}
         btSend('1')
-    } else if (receivingCommand) {
-        commandsString += data[0]
-    } else if (data[0] == '>>') {
         forceStop = false
         control.runInBackground(() => run(commands))
-    } else {
+    } else if (receivingCommand) {
+        commandsString += data[0]
+    }
+    //  else if (data[0] == '>>') {
+    //     forceStop = false
+    //     control.runInBackground(() => run(commands))
+    // } 
+    else {
+        // Keyboard control.
         if (!pressedKeys.length){
             lastPressedKeys = {}
         }
