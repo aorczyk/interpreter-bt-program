@@ -37,17 +37,15 @@ function messageHandler(receivedString: string) {
     if (data[0] == '0') {
         forceStop = true;
     } else if (data[0] == '-v') {
-        btSend('v1.0.0')
+        btSend('v1.0.1')
     } else if (data[0] == '<'){
-        receivingCommand = true
-        commandsString = ''
         commands = []
+        receivingCommand = true
     } else if (data[0] == '>'){
         receivingCommand = false
         commands = JSON.parse(commandsString)
+        commandsString = ''
         basic.clearScreen()
-        pressedKeys = []
-        lastPressedKeys = {}
         btSend('1')
         forceStop = false
         control.runInBackground(() => run(commands))
