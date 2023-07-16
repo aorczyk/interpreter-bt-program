@@ -10,7 +10,7 @@ let commandsString = ''
 let commands: Commands = []
 let receivingCommand = false;
 let forceStop = false;
-let variables: number[] = [0,0,0]
+let variables: number[] = [0, 0, 0]
 let threadsNr = 0;
 let pressedKeys: number[] = [];
 let lastPressedKeys: { [key: number]: boolean } = {};
@@ -21,7 +21,7 @@ let lastPressedKeys: { [key: number]: boolean } = {};
 bluetooth.startUartService()
 pfTransmitter.connectIrSenderLed(100) // AnalogPin.P0
 
-led.plot(2,0)
+led.plot(2, 0)
 
 bluetooth.onUartDataReceived(serial.delimiters(Delimiters.NewLine), function () {
     messageHandler(bluetooth.uartReadUntil(serial.delimiters(Delimiters.NewLine)))
@@ -37,11 +37,11 @@ function messageHandler(receivedString: string) {
     if (data[0] == '0') {
         forceStop = true;
     } else if (data[0] == '-v') {
-        btSend('v1.0.1')
-    } else if (data[0] == '<'){
+        btSend('v1.0.2')
+    } else if (data[0] == '<') {
         commands = []
         receivingCommand = true
-    } else if (data[0] == '>'){
+    } else if (data[0] == '>') {
         receivingCommand = false
         commands = JSON.parse(commandsString)
         commandsString = ''
@@ -58,7 +58,7 @@ function messageHandler(receivedString: string) {
     // } 
     else {
         // Keyboard control.
-        if (!pressedKeys.length){
+        if (!pressedKeys.length) {
             lastPressedKeys = {}
         }
         for (let k of pressedKeys) {
@@ -71,9 +71,9 @@ function messageHandler(receivedString: string) {
     }
 }
 
-function run(commands: Commands){
+function run(commands: Commands) {
     threadsNr += 1
-    for (let cmd of commands){
+    for (let cmd of commands) {
         runCommand(Array.isArray(cmd) ? cmd as number[] : [cmd as number])
 
         if (forceStop) {
@@ -82,9 +82,9 @@ function run(commands: Commands){
     }
 
     basic.pause(20)
-    
+
     threadsNr -= 1
-    if (threadsNr == 0){
+    if (threadsNr == 0) {
         btSend(200)
     }
 }
@@ -95,11 +95,11 @@ function compare(a: any | any[] | null, t: number, b: any | any[]) {
 }
 
 // --- Data handlers ---
-function getData(id: number, p1?: number, p2?: number){
-    if (id == 1){
+function getData(id: number, p1: number = 0, p2?: number) {
+    if (id == 1) {
         return input.lightLevel()
     }
-    else if (id == 2){
+    else if (id == 2) {
         return input.soundLevel()
     }
     else if (id >= 3 && id <= 5) {
@@ -130,7 +130,7 @@ function getData(id: number, p1?: number, p2?: number){
         return input.magneticForce(2)
     }
     else if (id == 24) {
-        return Math.randomRange(1,6)
+        return Math.randomRange(1, 6)
     }
     else if (id >= 70) {
         return pins.digitalReadPin(id + 30);
@@ -201,14 +201,14 @@ function getData(id: number, p1?: number, p2?: number){
     return null
 }
 
-function testConditions(conditions: Commands, p1?: number, p2?: number){
+function testConditions(conditions: Commands, p1?: number, p2?: number) {
     let test = true;
     let operator = null;
 
-    for (let i = 0; i < conditions.length; i++){
+    for (let i = 0; i < conditions.length; i++) {
         let c = conditions[i] as Commands;
         let out;
-        if (c[0] == 13 || c[0] == 14){
+        if (c[0] == 13 || c[0] == 14) {
             out = checkKeysPressed(c[0] as number, c[2] as number[])
             out = c[1] == 4 ? !out : out
         } else {
@@ -223,7 +223,7 @@ function testConditions(conditions: Commands, p1?: number, p2?: number){
     return test
 }
 
-function plot(action: number, points: number[]){
+function plot(action: number, points: number[]) {
     points.map(n => {
         let x = Math.trunc(n / 10)
         let y = Math.trunc(n - x * 10)
@@ -236,20 +236,20 @@ function checkKeysPressed(operator: number, pattern: number[]) {
 }
 
 // --- Commands ---
-function runCommand(cmd: Commands){
+function runCommand(cmd: Commands) {
     let id = cmd[0];
 
     if (id == 0) {
         basic.clearScreen()
-    } 
-    else if (id == 1){
+    }
+    else if (id == 1) {
         let data = cmd.map(x => getData(x as number));
         data[0] = input.runningTime()
         btSend(data.join(','))
     }
     else if (id == 102) {
         plot(cmd[1] as number, cmd[2] as number[])
-    } 
+    }
     else if (id == 4) {
         pfTransmitter.singleOutputMode(cmd[1] as number, cmd[2] as number, cmd[3] as number)
     }
@@ -259,11 +259,11 @@ function runCommand(cmd: Commands){
         let p2 = 0;
 
         while (!forceStop) {
-            if (!testConditions(c, p1, p2)){
+            if (!testConditions(c, p1, p2)) {
                 break;
             }
 
-            if (cmd[2]){
+            if (cmd[2]) {
                 run(cmd[2] as Commands)
             }
 
@@ -290,20 +290,22 @@ function runCommand(cmd: Commands){
         }
     }
     else if (id == 9) {
-        let a = cmd[3] as number;
         let n = cmd[1] as number - 50;
+        let p = cmd[2] as number;
+        let a = cmd[3] as number;
+        let v = variables[n];
 
-        let v = variables[n]
-        variables[n] = cmd[2] == 1 ? a :
-        cmd[2] == 2 ? v + a :
-        cmd[2] == 3 ? v - a :
-        cmd[2] == 4 ? getData(a) as number :
-        cmd[2] == 5 ? v * a :
-        cmd[2] == 6 ? v / a :
-        // cmd[2] == 8 ? v - +getData(a) :
-        // cmd[2] == 9 ? v + +getData(a) :
-        // cmd[2] == 7 ? Math.abs(v) :
-        0
+        if (p > 10) {
+            a = getData(a) as number;
+            p = p - 10
+        }
+
+        variables[n] = p == 1 ? a :
+            p == 2 ? v + a :
+                p == 3 ? v - a :
+                    p == 4 ? v * a :
+                        p == 5 ? v / a :
+                            0
     }
     // PinPullMode
     else if (id == 10) {
