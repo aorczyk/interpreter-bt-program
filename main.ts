@@ -37,7 +37,7 @@ function messageHandler(receivedString: string) {
     if (data[0] == '0') {
         forceStop = true;
     } else if (data[0] == '-v') {
-        btSend('v1.0.2')
+        btSend('v1.0.3')
     } else if (data[0] == '<') {
         commands = []
         receivingCommand = true
@@ -243,8 +243,14 @@ function runCommand(cmd: Commands) {
         basic.clearScreen()
     }
     else if (id == 1) {
-        let data = cmd.map(x => getData(x as number));
-        data[0] = input.runningTime()
+        // let data = cmd.map(x => getData(x as number));
+        // data[0] = input.runningTime()
+        // btSend(data.join(','))
+
+        let data = [];
+        for (let i = 1; i < cmd.length; i++){
+            data[i - 1] = getData(cmd[i] as number)
+        }
         btSend(data.join(','))
     }
     else if (id == 102) {
