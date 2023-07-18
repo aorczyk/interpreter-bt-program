@@ -10,7 +10,7 @@ let commandsString = ''
 let commands: Commands = []
 let receivingCommand = false;
 let forceStop = false;
-let variables: number[] = [0, 0, 0]
+let variables: number[] = [0, 0, 0, 0, 0, 0]
 let threadsNr = 0;
 let pressedKeys: number[] = [];
 let lastPressedKeys: { [key: number]: boolean } = {};
@@ -37,7 +37,7 @@ function messageHandler(receivedString: string) {
     if (data[0] == '0') {
         forceStop = true;
     } else if (data[0] == '-v') {
-        btSend('v1.0.3')
+        btSend('v1.0.4')
     } else if (data[0] == '<') {
         commands = []
         receivingCommand = true
@@ -112,7 +112,7 @@ function getData(id: number, p1: number = 0, p2?: number) {
         return input.temperature()
     }
     else if (id == -1) {
-        return (input.runningTime() - p1) / 100
+        return input.runningTime() - p1
     }
     else if (id == 18) {
         return + input.buttonIsPressed(Button.A)
@@ -224,11 +224,11 @@ function testConditions(conditions: Commands, p1?: number, p2?: number) {
 }
 
 function plot(action: number, points: number[]) {
-    points.map(n => {
-        let x = Math.trunc(n / 10)
-        let y = Math.trunc(n - x * 10)
-        action ? led.plot(x, y) : led.unplot(x, y)
-    })
+    for (const n of points) {
+        const x = n / 10 | 0;
+        const y = n % 10;
+        action ? led.plot(x, y) : led.unplot(x, y);
+    }
 }
 
 function checkKeysPressed(operator: number, pattern: number[]) {
@@ -243,10 +243,6 @@ function runCommand(cmd: Commands) {
         basic.clearScreen()
     }
     else if (id == 1) {
-        // let data = cmd.map(x => getData(x as number));
-        // data[0] = input.runningTime()
-        // btSend(data.join(','))
-
         let data = [];
         for (let i = 1; i < cmd.length; i++){
             data[i - 1] = getData(cmd[i] as number)
@@ -262,19 +258,12 @@ function runCommand(cmd: Commands) {
     else if (id == 5) { // || id == 6 || id == 16
         let c = cmd[1] as Commands;
         let p1 = input.runningTime();
-        let p2 = 0;
 
-        while (!forceStop) {
-            if (!testConditions(c, p1, p2)) {
-                break;
-            }
-
+        for (let p2 = 0; !forceStop && testConditions(c, p1, p2); p2++) {
             if (cmd[2]) {
-                run(cmd[2] as Commands)
+                run(cmd[2] as Commands);
             }
-
-            p2 += 1
-            basic.pause(20)
+            basic.pause(20);
         }
     }
     else if (id == 7) {
@@ -325,8 +314,8 @@ function runCommand(cmd: Commands) {
     }
     else if (id == 15) {
         music.setVolume(cmd[4] as number)
-        music.playTone(cmd[1] as number || cmd[2] as number, cmd[3] as number * 100)
-        basic.pause(cmd[5] as number * 100)
+        music.playTone(cmd[1] as number || cmd[2] as number, cmd[3] as number)
+        basic.pause(cmd[5] as number)
     }
     // --- Custom command ---
     // else if (id == 17) {
