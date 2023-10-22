@@ -209,7 +209,7 @@ function testConditions(conditions: Commands, p1?: number, p2?: number) {
         let c = conditions[i] as Commands;
         let out;
         if (c[0] == 13 || c[0] == 14) {
-            out = checkKeysPressed(c[0] as number, c[2] as number[])
+            out = checkKeysPressed(c[0] as number, c[2] as number)
             out = c[1] == 4 ? !out : out
         } else {
             let data = c[0] == 20 ? p2 : getData(c[0] as number, p1)
@@ -231,8 +231,8 @@ function plot(action: number, points: number[]) {
     }
 }
 
-function checkKeysPressed(operator: number, pattern: number[]) {
-    return operator == 14 ? pattern.every(elem => lastPressedKeys[elem]) : pattern.every(elem => pressedKeys.indexOf(elem) != -1);
+function checkKeysPressed(operator: number, pattern: number) {
+    return operator == 14 ? lastPressedKeys[pattern] : pressedKeys.indexOf(pattern) != -1;
 }
 
 // --- Commands ---
