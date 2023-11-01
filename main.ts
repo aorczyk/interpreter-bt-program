@@ -4,7 +4,7 @@
  * (c) 2023, Adam Orczyk
  */
 
-type Commands = (number | number[] | number[][])[]
+type Commands = (string | number | number[] | number[][])[]
 
 let commandsString = ''
 let commands: Commands = []
@@ -12,8 +12,8 @@ let receivingCommand = false;
 let forceStop = false;
 let variables: number[] = [0, 0, 0, 0, 0, 0]
 let threadsNr = 0;
-let pressedKeys: number[] = [];
-let lastPressedKeys: { [key: number]: boolean } = {};
+let pressedKeys: string[] = [];
+let lastPressedKeys: { [key: string]: boolean } = {};
 
 // let clapsNr: number = null;
 // let clapSound: number = null;
@@ -32,27 +32,27 @@ function btSend(str: string | number) {
 }
 
 function messageHandler(receivedString: string) {
-    let data = receivedString ? receivedString.split(';') : []
-
-    if (data[0] == '0') {
+    if (receivedString == '-s') {
         forceStop = true;
-    } else if (data[0] == '-v') {
+    } else if (receivedString == '-v') {
         btSend('v1.0.5')
-    } else if (data[0] == '<') {
+    } else if (receivedString == '<') {
         commands = []
         receivingCommand = true
-    } else if (data[0] == '>') {
+    } else if (receivedString == '>') {
         receivingCommand = false
         commands = JSON.parse(commandsString)
         commandsString = ''
+        lastPressedKeys = {}
+        pressedKeys = []
         basic.clearScreen()
         btSend('1')
         forceStop = false
         control.runInBackground(() => run(commands))
     } else if (receivingCommand) {
-        commandsString += data[0]
+        commandsString += receivedString
     }
-    //  else if (data[0] == '>>') {
+    //  else if (receivedString == '>>') {
     //     forceStop = false
     //     control.runInBackground(() => run(commands))
     // } 
@@ -61,12 +61,21 @@ function messageHandler(receivedString: string) {
         if (!pressedKeys.length) {
             lastPressedKeys = {}
         }
-        for (let k of pressedKeys) {
-            lastPressedKeys[k] = true
-        }
-        pressedKeys = data.map(x => +x)
-        for (let k of pressedKeys) {
-            lastPressedKeys[k] = false
+        // for (let k of pressedKeys) {
+        //     lastPressedKeys[k] = true
+        // }
+        // pressedKeys = data.map(x => x)
+        // for (let k of pressedKeys) {
+        //     lastPressedKeys[k] = false
+        // }
+
+        if (receivedString[0] == '^'){
+            let k = receivedString.slice(1);
+            lastPressedKeys[k] = true;
+            pressedKeys.splice(pressedKeys.indexOf(k), 1)
+        } else {
+            pressedKeys.push(receivedString)
+            lastPressedKeys[receivedString] = false
         }
     }
 }
@@ -209,7 +218,7 @@ function testConditions(conditions: Commands, p1?: number, p2?: number) {
         let c = conditions[i] as Commands;
         let out;
         if (c[0] == 13 || c[0] == 14) {
-            out = checkKeysPressed(c[0] as number, c[2] as number)
+            out = checkKeysPressed(c[0] as number, c[2] as string)
             out = c[1] == 4 ? !out : out
         } else {
             let data = c[0] == 20 ? p2 : getData(c[0] as number, p1)
@@ -231,7 +240,7 @@ function plot(action: number, points: number[]) {
     }
 }
 
-function checkKeysPressed(operator: number, pattern: number) {
+function checkKeysPressed(operator: number, pattern: string) {
     return operator == 14 ? lastPressedKeys[pattern] : pressedKeys.indexOf(pattern) != -1;
 }
 
