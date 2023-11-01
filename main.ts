@@ -61,15 +61,8 @@ function messageHandler(receivedString: string) {
         if (!pressedKeys.length) {
             lastPressedKeys = {}
         }
-        // for (let k of pressedKeys) {
-        //     lastPressedKeys[k] = true
-        // }
-        // pressedKeys = data.map(x => x)
-        // for (let k of pressedKeys) {
-        //     lastPressedKeys[k] = false
-        // }
 
-        if (receivedString[0] == '^'){
+        if (receivedString[0] == '!'){
             let k = receivedString.slice(1);
             lastPressedKeys[k] = true;
             pressedKeys.splice(pressedKeys.indexOf(k), 1)
