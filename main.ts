@@ -35,7 +35,7 @@ function messageHandler(receivedString: string) {
     if (receivedString == '-s') {
         forceStop = true;
     } else if (receivedString == '-v') {
-        btSend('v1.0.5')
+        btSend('v1.0.6')
     } else if (receivedString == '<') {
         commands = []
         receivingCommand = true
